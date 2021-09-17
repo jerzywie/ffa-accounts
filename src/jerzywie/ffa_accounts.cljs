@@ -5,13 +5,13 @@
    [reagent.dom :as rdom]
    [cljs.pprint :refer [pprint]]
    [cljs.core.async :as async :refer [alts! put! pipe chan <! >!]]
-   [goog.labs.format.csv :as csv])
+   [goog.labs.format.csv :as csv]
+   [jerzywie.csv :as mycsv]
+   [jerzywie.allocate :as alloc])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
-(println "This text is printed from src/jerzywie/ffa_accounts.cljs. Go ahead and edit it and see reloading in action!")
-
-;; define your app data so that it doesn't get over-written on reload
-(defonce app-state (atom {:text "Hello world!" :file-name "file-name.csv" :data "blah"}))
+;; define app state
+(defonce app-state (atom {:text "FFA Accounts" :file-name nil :data nil}))
 
 (def first-file
   (map (fn [e]
@@ -21,7 +21,12 @@
            file))))
 
 (def extract-result
-  (map #(-> % .-target .-result csv/parse js->clj)))
+  (map #(-> %
+            .-target
+            .-result
+            csv/parse
+            js->clj
+            mycsv/transform-raw-data)))
 
 (def upload-reqs (chan 1 first-file))
 (def file-reads (chan 1 extract-result))
@@ -44,17 +49,17 @@
 (defn upload-btn [file-name]
   [:span.upload-label
    [:label
-    [:input.hidden-xs-up 
+    [:input.hidden-xs-up
      {:type "file" :accept ".csv" :on-change put-upload}]
     [:i.fa.fa-upload.fa-lg]
-    (or file-name "click here to upload and render csv...")]
-   (when file-name 
+    (or file-name "click here to upload the transactions csv...")]
+   (when file-name
      [:i.fa.fa-times {:on-click #(reset! app-state {})}])])
 
 (defn multiply [a b] (* a b))
 
 (defn report [data]
-  (with-out-str (pprint data)))
+  (with-out-str (pprint (alloc/process-income (:txns data)))))
 
 (defn get-app-element []
   (gdom/getElement "app"))
@@ -62,14 +67,14 @@
 (defn hello-world []
   [:div.app
    [:h1 (:text @app-state)]
-   [:h3 "Edit this in src/jerzywie/ffa_accounts.cljs and watch! Has it changed!?!"]
    (let [{:keys [file-name data] :as state} @app-state]
      [:div
-      [:h4 "debug app state"]
-      [:p (with-out-str (pprint state))]
       [:div.topbar.hidden-print 
        [upload-btn file-name]]
-      [:p (report data)]])])
+      [:p (report data)]
+      [:div[:h4 "debug app state"]
+       [:p (with-out-str (pprint state))]]]
+     )])
 
 (defn mount [el]
   (rdom/render [hello-world] el))
