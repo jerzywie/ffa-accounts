@@ -7,7 +7,9 @@
    [cljs.core.async :as async :refer [alts! put! pipe chan <! >!]]
    [goog.labs.format.csv :as csv]
    [jerzywie.csv :as mycsv]
-   [jerzywie.allocate :as alloc])
+   [jerzywie.allocate :as alloc]
+   [jerzywie.analyse :as anal]
+   [jerzywie.util :as util])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 ;; define app state
@@ -59,7 +61,17 @@
 (defn multiply [a b] (* a b))
 
 (defn report [data]
-  (with-out-str (pprint (alloc/process-income (:txns data)))))
+  (let [analysis-date (util/md [2021 8 8])
+        processed-transactions (->> data
+                                    :txns
+                                    alloc/process-income
+                                    (anal/analyse-donations analysis-date))]
+    [:div
+     [:h4 (str "Donations as of " analysis-date)]
+     [:h4 "Account summary"]
+     [:div
+      (map (fn [[k v]] [:p (str (name k) ": " v)]) (:accinfo data))
+      ]]))
 
 (defn get-app-element []
   (gdom/getElement "app"))
