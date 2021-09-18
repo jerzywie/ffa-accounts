@@ -12,3 +12,4 @@ pom.xml
 .cpcache/
 .rebel_readline_history
 .dir-locals.el
+/test-but-not-yet/
