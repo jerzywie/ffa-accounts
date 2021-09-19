@@ -4,6 +4,7 @@
     ;; require all the namespaces that you want to test
     [jerzywie.ffa-accounts-test]
     [jerzywie.cache_test]
+    [jerzywie.csv-file-test]
     [figwheel.main.testing :refer [run-tests-async]]))
 
 (defn -main [& args]
