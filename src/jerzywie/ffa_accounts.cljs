@@ -13,12 +13,14 @@
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 ;; define app state
-(defonce app-state (atom {:text "FFA Accounts" :file-name nil :data nil}))
+(defonce initial-app-state {})
+(defonce app-state (atom initial-app-state))
 
 (def first-file
   (map (fn [e]
          (let [target (.-currentTarget e)
                file (-> target .-files (aget 0))]
+           (prn "first-file target" target "file" file "name" (.-name file))
            (set! (.-value target) "")
            file))))
 
@@ -34,6 +36,7 @@
 (def file-reads (chan 1 extract-result))
 
 (defn put-upload [e]
+  (prn "put-upload e" e)
   (put! upload-reqs e))
 
 (go-loop []
@@ -51,39 +54,39 @@
 (defn upload-btn [file-name]
   [:span.upload-label
    [:label
-    [:input.hidden-xs-up
+    [:input.d-none
      {:type "file" :accept ".csv" :on-change put-upload}]
-    [:i.fa.fa-upload.fa-lg]
-    (or file-name "click here to upload the transactions csv...")]
+    [:i.fa.fa-upload.fa-lg.pe-2]
+    (or file-name "Click here to upload the transactions csv...")]
    (when file-name
-     [:i.fa.fa-times {:on-click #(reset! app-state {})}])])
+     [:i.fa.fa-times.ps-2 {:on-click #(reset! app-state initial-app-state)}])])
 
 (defn multiply [a b] (* a b))
 
 (defn report [data]
-  (let [analysis-date (util/md [2021 8 8])
-        processed-transactions (->> data
-                                    :txns
-                                    alloc/process-income
-                                    (anal/analyse-donations analysis-date))]
-    [:div
-     [:h4 (str "Donations as of " analysis-date)]
-     [:h4 "Account summary"]
-     [:div
-      (map (fn [[k v]] [:p (str (name k) ": " v)]) (:accinfo data))
-      ]]))
+  (when data
+    (let [analysis-date (util/md [2021 8 8])
+          processed-transactions (->> data
+                                      :txns
+                                      alloc/process-income
+                                      (anal/analyse-donations analysis-date))]
+      [:div
+       [:h4 (str "Donations as of " analysis-date)]
+       [:h4 "Account summary"]
+       [:div
+        (map (fn [[k v] id] ^{:key id} [:p (str (name k) ": " v)]) (:accinfo data) (range))]])))
 
 (defn get-app-element []
   (gdom/getElement "app"))
 
 (defn hello-world []
   [:div.app
-   [:h1 (:text @app-state)]
+   [:h1 "FFA Accounts"]
    (let [{:keys [file-name data] :as state} @app-state]
      [:div
       [:div.topbar.hidden-print 
        [upload-btn file-name]]
-      [:p (report data)]
+      [:div (report data)]
       [:div[:h4 "debug app state"]
        [:p (with-out-str (pprint state))]]]
      )])
