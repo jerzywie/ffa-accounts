@@ -41,7 +41,6 @@
   (let [input-el (get-input-element (<! input-elements))
         file (get-file-from-input input-el)
         reader (js/FileReader.)]
-    (prn "go-loop processing " (.-name file))
     (set! (.-onload reader) #(put! file-reads %))
     (.readAsText reader file)
     (recur)))

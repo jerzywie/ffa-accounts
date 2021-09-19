@@ -1,12 +1,21 @@
 (ns jerzywie.csv-file-test
-  (:require [jerzywie.test-util :as util]
-            [cljs.test :refer-macros [deftest async]]
+  (:require [jerzywie.csv :as sut]
+            [jerzywie.test-util :as util]
+            [cljs.test :refer-macros [deftest async is]]
             [cljs.core.async :as async :refer [go <!]]))
 
-  (deftest file-tests-async
-    (let [_ (util/request-input-element-value "inp")]
-      (async done
-             (go
-               (let [result (<! util/file-reads)]
-                 (prn "result" result)))
-             (done))))
+(def expected-keys '(:accinfo :txns))
+(def expected-txns-count 58)
+(def expected-header-keys-count 3)
+
+(deftest file-tests-async
+  (let [_ (util/request-input-element-value "inp")]
+    (async done
+           (go
+             (let [raw-data (<! util/file-reads)
+                   sd (sut/transform-raw-data raw-data)]
+               (is (= (count (keys sd)) (count expected-keys)))
+               (is (= (keys sd) expected-keys))
+               (is (= (count (:txns sd)) expected-txns-count))
+               (is (= (count (:accinfo sd)) expected-header-keys-count))
+               (done))))))

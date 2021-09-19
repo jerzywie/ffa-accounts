@@ -5,7 +5,14 @@
     [jerzywie.ffa-accounts-test]
     [jerzywie.cache_test]
     [jerzywie.csv-file-test]
-    [figwheel.main.testing :refer [run-tests-async]]))
+    [figwheel.main.testing :refer [run-tests-async]]
+    [figwheel.main.async-result :as async-result]
+    [cljs.test :as test]))
 
 (defn -main [& args]
   (run-tests-async 5000))
+
+(defmethod test/report [:cljs.test/default :end-run-tests] [m]
+  (if (test/successful? m)
+    (async-result/send "Tests Passed!!")
+    (async-result/send "Tests FAILED")))
