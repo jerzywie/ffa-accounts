@@ -81,13 +81,14 @@
 
 (defn hello-world []
   [:div.app
-   [:h1 "FFA Accounts"]
+   [:h2 "FFA Accounts"]
    (let [{:keys [file-name data] :as state} @app-state]
      [:div
-      [:div.topbar.hidden-print 
+      [:div.topbar.hidden-print.mb-3
        [upload-btn file-name]]
-      [:div (report data)]
-      [:div[:h4 "debug app state"]
+      [:div.mb-3 (report data)]
+      [:div
+       [:h5 "debug app state"]
        [:p (with-out-str (pprint state))]]]
      )])
 
