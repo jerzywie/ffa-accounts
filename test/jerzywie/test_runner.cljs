@@ -5,6 +5,7 @@
     [jerzywie.ffa-accounts-test]
     [jerzywie.cache_test]
     [jerzywie.csv-file-test]
+    [jerzywie.csv-test]
     [figwheel.main.testing :refer [run-tests-async]]
     [figwheel.main.async-result :as async-result]
     [cljs.test :as test]))
