@@ -1,7 +1,7 @@
-(ns jerzywie.analyse-test
+(ns jerzywie.ffa-accounts.analyse-test
   (:require [jerzywie.ffa-accounts.analyse :as sut]
             [jerzywie.ffa-accounts.util :refer [md]]
-            [jerzywie.test-util :as test-util]
+            [jerzywie.ffa-accounts.test-util :as test-util]
             [cljs.test :refer [are deftest is use-fixtures]]))
 
 (def test-txns "resources/txns.edn")

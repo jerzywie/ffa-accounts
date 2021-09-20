@@ -1,4 +1,4 @@
-(ns jerzywie.test-util
+(ns jerzywie.ffa-accounts.test-util
   (:require [jerzywie.ffa-accounts.cache :as cache]
             [goog.dom :as gdom]
             [goog.labs.format.csv :as csv]

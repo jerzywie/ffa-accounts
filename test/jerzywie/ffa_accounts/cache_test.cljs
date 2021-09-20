@@ -1,6 +1,6 @@
-(ns jerzywie.cache-test
+(ns jerzywie.ffa-accounts.cache-test
   (:require [jerzywie.ffa-accounts.cache :as sut]
-            [jerzywie.test-util :as util]
+            [jerzywie.ffa-accounts.test-util :as util]
             [cljs.test :refer-macros [deftest is use-fixtures]]))
 
 (use-fixtures :each util/start-with-empty-cache)

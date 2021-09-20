@@ -1,6 +1,6 @@
-(ns jerzywie.csv-async-test
+(ns jerzywie.ffa-accounts.csv-async-test
   (:require [jerzywie.ffa-accounts.csv :as sut]
-            [jerzywie.test-util :as test-util]
+            [jerzywie.ffa-accounts.test-util :as test-util]
             [cljs.test :refer-macros [deftest async is]]
             [cljs.core.async :as async :refer [go <!]]))
 

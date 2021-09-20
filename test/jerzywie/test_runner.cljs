@@ -2,22 +2,15 @@
 (ns jerzywie.test-runner
   (:require
     ;; require all the namespaces that you want to test
-   [jerzywie.ffa-accounts-test]
-   [jerzywie.cache_test]
-   [jerzywie.csv-async-test]
-   [jerzywie.csv-test]
-   [jerzywie.allocate-test]
-   [jerzywie.allocate-async-test]
-   [jerzywie.analyse-test]
+   [jerzywie.ffa-accounts.ffa-accounts-test]
+   [jerzywie.ffa-accounts.cache_test]
+   [jerzywie.ffa-accounts.csv-async-test]
+   [jerzywie.ffa-accounts.csv-test]
+   [jerzywie.ffa-accounts.allocate-test]
+   [jerzywie.ffa-accounts.allocate-async-test]
+   [jerzywie.ffa-accounts.analyse-test]
 
-   [figwheel.main.testing :refer [run-tests-async]]
-   [figwheel.main.async-result :as async-result]
-   [cljs.test :as test]))
+   [figwheel.main.testing :refer [run-tests-async]]))
 
 (defn -main [& args]
   (run-tests-async 10000))
-
-;(defmethod test/report [:cljs.test/default :end-run-tests] [m]
-;  (if (test/successful? m)
-;    (async-result/send "Tests Passed!!")
-;    (async-result/send "Tests FAILED")))
