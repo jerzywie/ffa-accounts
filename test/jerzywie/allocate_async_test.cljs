@@ -19,7 +19,6 @@
   (let [_ (test-util/request-input-element-value "inp")]
     (async done
            (go
-             (prn "before getting test transactions")
              (let [income-tx (-> (<! test-util/file-reads)
                                  csv/transform-raw-data
                                  :txns

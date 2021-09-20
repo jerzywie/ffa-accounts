@@ -8,6 +8,7 @@
    [jerzywie.csv-test]
    [jerzywie.allocate-test]
    [jerzywie.allocate-async-test]
+   [jerzywie.analyse-test]
 
    [figwheel.main.testing :refer [run-tests-async]]
    [figwheel.main.async-result :as async-result]
