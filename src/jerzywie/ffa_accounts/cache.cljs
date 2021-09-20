@@ -1,4 +1,4 @@
-(ns jerzywie.cache)
+(ns jerzywie.ffa-accounts.cache)
 
 (def empty-name-cache {})
 

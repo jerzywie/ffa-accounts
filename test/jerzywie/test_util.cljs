@@ -1,5 +1,5 @@
 (ns jerzywie.test-util
-  (:require [jerzywie.cache :as cache]
+  (:require [jerzywie.ffa-accounts.cache :as cache]
             [goog.dom :as gdom]
             [goog.labs.format.csv :as csv]
             [cljs.core.async :as async :refer [put! chan <!]])

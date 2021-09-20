@@ -1,7 +1,6 @@
-(ns jerzywie.csv
-  (:require [jerzywie.util :as u]
-            [clojure.string :as s]
-            [java.time :as j]))
+(ns jerzywie.ffa-accounts.csv
+  (:require [jerzywie.ffa-accounts.util :as u]
+            [clojure.string :as s]))
 
 (def keyword-convert {:date :date
                       :transactiontype :type

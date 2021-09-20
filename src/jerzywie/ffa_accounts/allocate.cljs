@@ -1,6 +1,6 @@
-(ns jerzywie.allocate
-  (:require [jerzywie.cache :as nc]
-            [jerzywie.util :as u]
+(ns jerzywie.ffa-accounts.allocate
+  (:require [jerzywie.ffa-accounts.cache :as nc]
+            [jerzywie.ffa-accounts.util :as u]
             [clojure.string :as s]))
 
 (def empty-name {:names #{} :group nil :filterby nil})

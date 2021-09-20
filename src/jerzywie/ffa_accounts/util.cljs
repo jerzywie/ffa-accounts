@@ -1,4 +1,4 @@
-(ns jerzywie.util
+(ns jerzywie.ffa-accounts.util
   (:require [clojure.string :as s]
             [java.time :as j]
             [goog.string :as g]))

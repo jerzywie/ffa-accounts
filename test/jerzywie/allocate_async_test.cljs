@@ -1,7 +1,7 @@
 (ns jerzywie.allocate-async-test
-  (:require [jerzywie.allocate :as sut]
+  (:require [jerzywie.ffa-accounts.allocate :as sut]
             [jerzywie.test-util :as test-util]
-            [jerzywie.csv :as csv]
+            [jerzywie.ffa-accounts.csv :as csv]
             [cljs.test :refer [are deftest is testing use-fixtures async]]
             [cljs.core.async :as async :refer [go <!]]))
 

@@ -1,6 +1,6 @@
 (ns jerzywie.analyse-test
-  (:require [jerzywie.analyse :as sut]
-            [jerzywie.util :refer [md]]
+  (:require [jerzywie.ffa-accounts.analyse :as sut]
+            [jerzywie.ffa-accounts.util :refer [md]]
             [jerzywie.test-util :as test-util]
             [cljs.test :refer [are deftest is use-fixtures]]))
 

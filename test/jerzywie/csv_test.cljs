@@ -1,9 +1,7 @@
 (ns jerzywie.csv-test
-  (:require [jerzywie.csv :as sut]
+  (:require [jerzywie.ffa-accounts.csv :as sut]
             [cljs.test :refer-macros [deftest is testing]]
-            [jerzywie.util :as util]))
-
-(def test-csv-file "resources/test-transactions.csv")
+            [jerzywie.ffa-accounts.util :as util]))
 
 (def expected-accname "accname")
 (def expected-balance {:s "�123.45" :v 123.45})

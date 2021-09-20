@@ -1,5 +1,5 @@
 (ns jerzywie.cache-test
-  (:require [jerzywie.cache :as sut]
+  (:require [jerzywie.ffa-accounts.cache :as sut]
             [jerzywie.test-util :as util]
             [cljs.test :refer-macros [deftest is use-fixtures]]))
 

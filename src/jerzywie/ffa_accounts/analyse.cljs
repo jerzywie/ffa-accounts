@@ -1,5 +1,5 @@
-(ns jerzywie.analyse
-  (:require [jerzywie.cache :as nc]
+(ns jerzywie.ffa-accounts.analyse
+  (:require [jerzywie.ffa-accounts.cache :as nc]
             [java.time.temporal :as jt]))
 
 ;(defn days-between [d1 d2]

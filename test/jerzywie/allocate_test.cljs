@@ -1,7 +1,6 @@
 (ns jerzywie.allocate-test
-  (:require [jerzywie.allocate :as sut]
+  (:require [jerzywie.ffa-accounts.allocate :as sut]
             [jerzywie.test-util :as util]
-            [jerzywie.csv :as csv]
             [cljs.test :refer [are deftest is testing use-fixtures]]))
 
 (use-fixtures :each util/start-with-empty-cache)
