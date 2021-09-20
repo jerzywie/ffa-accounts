@@ -1,4 +1,4 @@
-(ns jerzywie.csv-file-test
+(ns jerzywie.csv-async-test
   (:require [jerzywie.csv :as sut]
             [jerzywie.test-util :as util]
             [cljs.test :refer-macros [deftest async is]]
