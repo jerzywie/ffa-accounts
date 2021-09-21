@@ -6,8 +6,10 @@
    [jerzywie.ffa-accounts.state :as state] ))
 
 (defn home-page []
-  [:div.app
-   [:h2 "FFA Accounts"]
+  [:div.app.container
+   [:header.d-flex.border-bottom.mb-3
+    [:img.img-fluid.me-3 {:src "./FFA-logo.jpg"}]
+    [:span.fs-2.mt-3 "FFA Accounts"]]
    (let [{:keys [file-name data] :as state} @state/app-state]
      [:div
       [:div.topbar.hidden-print.mb-3

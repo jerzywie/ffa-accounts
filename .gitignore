@@ -13,3 +13,4 @@ pom.xml
 .rebel_readline_history
 .dir-locals.el
 /test-but-not-yet/
+.DS_Store
