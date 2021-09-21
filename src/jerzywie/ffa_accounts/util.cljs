@@ -21,3 +21,13 @@
   (let [[dd MMM yyyy] (s/split dstr #"\s")
         MM (inc (.indexOf month-names MMM))]
     (.parse j/LocalDate (g/format "%s-%02i-%s" yyyy MM dd))))
+
+(defn tonumber
+  ([v curr]
+   (cond
+     (nil? v) ""
+     (js/isNaN v) ""
+     v (g/format "%s%0.2f" curr v)
+     :else ""))
+  ([v]
+   (tonumber v "")))
