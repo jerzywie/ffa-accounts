@@ -5,10 +5,15 @@
 
 (def month-names ["Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"])
 
+(defn parse-iso-date-string
+  "Parse date string of form 'yyyy-mm-dd'"
+  [iso-date-string]
+  (.parse j/LocalDate iso-date-string))
+
 (defn md
   "Helper function to make local-date from year month day array."
   [[y m d]]
-  (.parse j/LocalDate (g/format "%04f-%02f-%02f" y m d)))
+  (parse-iso-date-string (g/format "%04f-%02f-%02f" y m d)))
 
 (defn strip-last-char-if [s char-string]
   (if (s/ends-with? s char-string)
@@ -20,7 +25,7 @@
   [dstr]
   (let [[dd MMM yyyy] (s/split dstr #"\s")
         MM (inc (.indexOf month-names MMM))]
-    (.parse j/LocalDate (g/format "%s-%02i-%s" yyyy MM dd))))
+    (parse-iso-date-string (g/format "%s-%02i-%s" yyyy MM dd))))
 
 (defn tonumber
   ([v curr]
