@@ -9,7 +9,7 @@
   [:div.app.container
    [:div.row
     [:header.d-flex.border-bottom.mb-3
-     [:img.img-fluid.me-3 {:src "./FFA-logo.jpg"}]
+     [:img.img-fluid.me-3 {:src "./images/FFA-logo.jpg"}]
      [:span.fs-2.mt-3 "FFA Accounts"]]]
    (let [{:keys [file-name analysis-date data] :as state} @state/app-state]
      [:div

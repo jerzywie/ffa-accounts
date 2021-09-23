@@ -28,7 +28,7 @@ To clean all compiled files:
 To create a production build run:
 
 	rm -rf target/public
-	clojure -A:fig:min
+	clojure -M:fig:min
 
 
 ## License

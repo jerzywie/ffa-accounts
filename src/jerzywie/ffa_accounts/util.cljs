@@ -1,7 +1,8 @@
 (ns jerzywie.ffa-accounts.util
   (:require [clojure.string :as s]
             [java.time :as j]
-            [goog.string :as g]))
+            [goog.string :as g]
+            [goog.string.format]))
 
 (def month-names ["Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"])
 
