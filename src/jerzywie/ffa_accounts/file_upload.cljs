@@ -29,13 +29,13 @@
 (go-loop []
   (let [reader (js/FileReader.)
         file (<! upload-reqs)]
-    (swap! state/app-state assoc :file-name (.-name file))
+    (state/add-file-name! (.-name file))
     (set! (.-onload reader) #(put! file-reads %))
     (.readAsText reader file)
     (recur)))
 
 (go-loop []
-  (swap! state/app-state assoc :data (<! file-reads))
+  (state/add-data! (<! file-reads))
   (recur))
 
 (defn upload-btn [file-name]
@@ -46,4 +46,4 @@
     [:i.fa.fa-upload.fa-lg.pe-2]
     (or file-name "Click here to upload the transactions csv...")]
    (when file-name
-     [:i.fa.fa-times.ps-2 {:on-click #(state/reset-state!)}])])
+     [:i.fa.fa-times.ps-2 {:on-click #(state/remove-file-data!)}])])

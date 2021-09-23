@@ -4,6 +4,7 @@
    [jerzywie.ffa-accounts.analyse :as anal]
    [jerzywie.ffa-accounts.util :as util]
    [jerzywie.ffa-accounts.cache :as cache]
+   [jerzywie.ffa-accounts.state :as state]
    [clojure.string :refer [join trim replace starts-with? replace-first capitalize]]))
 
 (defn format-account-name [name-set]
@@ -66,13 +67,13 @@
               [:td.text-right (util/tonumber (get-total amounts) "£")]
               [:td (str date)]]))]))
 
-(defn report [data]
-  (when data
-    (let [analysis-date (util/md [2021 8 8])
-          processed-transactions (->> data
+(defn report [data analysis-date]
+  (when (and data analysis-date)
+    (let [processed-transactions (->> data
                                       :txns
                                       alloc/process-income
                                       (anal/analyse-donations analysis-date))]
+      (state/add-processed-transactions processed-transactions)
       [:div
        [:h4 (str "Donations as of " analysis-date)]
        [:h4 "Account summary"]
