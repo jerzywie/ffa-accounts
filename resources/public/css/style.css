@@ -1,5 +1,11 @@
 /* some style */
 
 .tiny-words {
-    font-size: 10px
+    font-size: 10px;
+}
+
+input[type=date] {
+    border-color: var(--bs-success);
+    border-style: solid;
+    border-width: 1px;
 }

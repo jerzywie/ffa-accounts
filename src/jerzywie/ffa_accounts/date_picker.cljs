@@ -4,9 +4,13 @@
    [jerzywie.ffa-accounts.util :as util]))
 
 (defn date-picker []
-  [:input
-   {:type "date"
-    :on-change (fn [e]
-                 (state/add-analysis-date!
-                  (util/parse-iso-date-string
-                   (.-target.value e))))}])
+  (let [{:keys [analysis-date]} (state/state)]
+    [:span.text-success
+     [:label.me-1 {:for "date-picker"} "Choose analysis date"]
+     [:input#date-picker.text-success
+      {:type "date"
+       :value (str analysis-date)
+       :on-change (fn [e]
+                    (state/add-analysis-date!
+                     (util/parse-iso-date-string
+                      (.-target.value e))))}]]))

@@ -40,10 +40,10 @@
 
 (defn upload-btn [file-name]
   [:span.upload-label
-   [:label
+   [:label.btn.btn-outline-success.btn-sm {:type "button"}
     [:input.d-none
      {:type "file" :accept ".csv" :on-change put-upload}]
     [:i.fa.fa-upload.fa-lg.pe-2]
-    (or file-name "Click here to upload the transactions csv...")]
+    (or file-name "Click here to load a transactions csv")]
    (when file-name
      [:i.fa.fa-times.ps-2 {:on-click #(state/remove-file-data!)}])])

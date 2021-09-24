@@ -11,13 +11,13 @@
     [:header.d-flex.border-bottom.mb-3
      [:img.img-fluid.me-3 {:src "./images/FFA-logo.jpg"}]
      [:span.fs-2.mt-3 "FFA Accounts"]]]
-   (let [{:keys [file-name analysis-date data] :as state} @state/app-state]
+   (let [{:keys [file-name analysis-date data]} (state/state)]
      [:div
-      [:div.row.d-print-none
+      [:div.row.border-bottom.d-print-none
        [:div.mb-3.col
         [fup/upload-btn file-name]]
-       [:div.col
+       [:div.mb-3.col
         [d-p/date-picker]]]
       [:div.mb-3 (report/report data analysis-date)]
-      [:pre [state/debug-app-state]]]
-     )])
+      [state/debug-app-state]]
+ )])

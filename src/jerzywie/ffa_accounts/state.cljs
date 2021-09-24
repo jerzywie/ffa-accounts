@@ -6,6 +6,9 @@
 (defonce initial-app-state {})
 (defonce app-state (atom initial-app-state))
 
+(defn state []
+  @app-state)
+
 (defn reset-state! []
   (reset! app-state initial-app-state))
 
