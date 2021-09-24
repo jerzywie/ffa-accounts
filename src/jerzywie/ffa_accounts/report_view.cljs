@@ -73,7 +73,7 @@
              [:div.col-md-4]
              [:div.col-md-4 (str "First transaction: " date-first-txn)]
              [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
-            [:h4 "Current donations"]
+            [:h4 "Donations in last month"]
             (filter-donations processed-transactions
                               (fn [x] (contains? x :current)))
             [:h4 "One offs"]
