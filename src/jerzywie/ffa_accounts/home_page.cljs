@@ -19,5 +19,5 @@
        [:div.col
         [d-p/date-picker]]]
       [:div.mb-3 (report/report data analysis-date)]
-      [state/debug-app-state]]
+      [:pre [state/debug-app-state]]]
      )])

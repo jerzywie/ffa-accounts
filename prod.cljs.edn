@@ -1,0 +1,7 @@
+^{:watch-dirs ["test" "src"]
+  :css-dirs ["resources/public/css"]
+  :auto-testing true
+   }
+{:main jerzywie.ffa-accounts
+ :closure-defines {goog.DEBUG false}
+ :output-to "target/public/cljs-out/dev-main.js"}

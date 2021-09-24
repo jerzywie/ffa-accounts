@@ -28,32 +28,29 @@
   (add-stuff! :processed-txns txns))
 
 (defn debug-app-state []
-  (let [state @app-state]
-    [:div.mb-3
-     [:h5 "debug app state"]
-     [:div (with-out-str (pprint (assoc (dissoc state :data :processed-txns) :data-state  (if (:data state) "Data exists." "No data."))))]
-     [:h6.mt-3 "Processed-txns ('type' and 'desc' omitted)"]
-     [:table.table.table-sm.table-striped
-      [:thead
-       [:tr
-        [:th {:scope "col"} "date"]
-        ;[:th {:scope "col"} "type"]
-        ;[:th {:scope "col"} "desc"]
-        [:th.text-right {:scope "col"} "in"]
-        [:th {:scope "col"} "name"]
-        [:th {:scope "col"} "group"]
-        [:th {:scope "col"} "account-name"]
-        [:th {:scope "col"} "freq"]
-        [:th {:scope "col"} "current"]]]
-      (into [:tbody]
-            (for [{:keys [date type desc in name group account-name freq current]} (:processed-txns state)]
-              [:tr.tiny-words
-               [:td (str date)]
-               ;[:td type]
-               ;[:td desc]
-               [:td.text-right in]
-               [:td name]
-               [:td group]
-               [:td account-name]
-               [:td freq]
-               [:td (when current "current")]]))]]))
+  (when ^boolean js/goog.DEBUG
+    (let [state @app-state]
+      [:div.mb-3.d-print-none
+       [:h5 "debug app state"]
+       [:div (with-out-str (pprint (assoc (dissoc state :data :processed-txns) :data-state  (if (:data state) "Data exists." "No data."))))]
+       [:h6.mt-3 "Processed-txns ('type' and 'desc' omitted)"]
+       [:table.table.table-sm.table-striped
+        [:thead
+         [:tr
+          [:th {:scope "col"} "date"]
+          [:th.text-right {:scope "col"} "in"]
+          [:th {:scope "col"} "name"]
+          [:th {:scope "col"} "group"]
+          [:th {:scope "col"} "account-name"]
+          [:th {:scope "col"} "freq"]
+          [:th {:scope "col"} "current"]]]
+        (into [:tbody]
+              (for [{:keys [date type desc in name group account-name freq current]} (:processed-txns state)]
+                [:tr.tiny-words
+                 [:td (str date)]
+                 [:td.text-right in]
+                 [:td name]
+                 [:td group]
+                 [:td account-name]
+                 [:td freq]
+                 [:td (when current "current")]]))]])))
