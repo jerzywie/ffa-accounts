@@ -33,27 +33,28 @@
 (defn debug-app-state []
   (when ^boolean js/goog.DEBUG
     (let [state @app-state]
-      [:div.mb-3.d-print-none
-       [:h5 "debug app state"]
-       [:div (with-out-str (pprint (assoc (dissoc state :data :processed-txns) :data-state  (if (:data state) "Data exists." "No data."))))]
-       [:h6.mt-3 "Processed-txns ('type' and 'desc' omitted)"]
-       [:table.table.table-sm.table-striped
-        [:thead
-         [:tr
-          [:th {:scope "col"} "date"]
-          [:th.text-right {:scope "col"} "in"]
-          [:th {:scope "col"} "name"]
-          [:th {:scope "col"} "group"]
-          [:th {:scope "col"} "account-name"]
-          [:th {:scope "col"} "freq"]
-          [:th {:scope "col"} "current"]]]
-        (into [:tbody]
-              (for [{:keys [date type desc in name group account-name freq current]} (:processed-txns state)]
-                [:tr.tiny-words
-                 [:td (str date)]
-                 [:td.text-right in]
-                 [:td name]
-                 [:td group]
-                 [:td account-name]
-                 [:td freq]
-                 [:td (when current "current")]]))]])))
+      [:pre
+       [:div.mb-3.d-print-none
+        [:h5 "debug app state"]
+        [:div (with-out-str (pprint (assoc (dissoc state :data :processed-txns) :data-state  (if (:data state) "Data exists." "No data."))))]
+        [:h6.mt-3 "Processed-txns ('type' and 'desc' omitted)"]
+        [:table.table.table-sm.table-striped
+         [:thead
+          [:tr
+           [:th {:scope "col"} "date"]
+           [:th.text-right {:scope "col"} "in"]
+           [:th {:scope "col"} "name"]
+           [:th {:scope "col"} "group"]
+           [:th {:scope "col"} "account-name"]
+           [:th {:scope "col"} "freq"]
+           [:th {:scope "col"} "current"]]]
+         (into [:tbody]
+               (for [{:keys [date in name group account-name freq current]} (:processed-txns state)]
+                 [:tr.tiny-words
+                  [:td (str date)]
+                  [:td.text-right in]
+                  [:td name]
+                  [:td group]
+                  [:td account-name]
+                  [:td freq]
+                  [:td (when current "current")]]))]]])))
