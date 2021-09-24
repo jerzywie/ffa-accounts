@@ -2,7 +2,7 @@
   (:require
    [jerzywie.ffa-accounts.file-upload :as fup]
    [jerzywie.ffa-accounts.date-picker :as d-p]
-   [jerzywie.ffa-accounts.report :as report]
+   [jerzywie.ffa-accounts.report-view :as report]
    [jerzywie.ffa-accounts.state :as state] ))
 
 (defn home-page []

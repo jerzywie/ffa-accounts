@@ -1,23 +1,12 @@
-(ns jerzywie.ffa-accounts.report
+(ns jerzywie.ffa-accounts.report-view
   (:require
    [jerzywie.ffa-accounts.allocate :as alloc]
    [jerzywie.ffa-accounts.analyse :as anal]
    [jerzywie.ffa-accounts.util :as util]
+   [jerzywie.ffa-accounts.report-util :as r-util] 
    [jerzywie.ffa-accounts.cache :as cache]
    [jerzywie.ffa-accounts.state :as state]
-   [clojure.string :refer [join trim replace starts-with? replace-first capitalize]]))
-
-(defn format-account-name [name-set]
-  (let [reducer (fn [s1 s2] (str s1 "|" s2))
-        chop-start (fn [s start] (if (starts-with? s start) (replace-first s start "") s))]
-    (-> name-set
-        vec
-        sort
-        (#(reduce reducer nil %))
-        (replace "||" "|")
-        (chop-start "|")
-        (replace "|" " & ")
-        trim)))
+   [clojure.string :refer [capitalize]]))
 
 (defn filter-donations [processed-txns filter-fn]
   (let [filtered-txns (filter filter-fn processed-txns)
@@ -32,23 +21,18 @@
      (into [:tbody]
            (for [{:keys [freq date account-name in]} filtered-txns]
              [:tr
-              [:td (format-account-name account-name)]
+              [:td (r-util/format-account-name account-name)]
               [:td.text-end (util/tonumber in)]
               [:td (format-freq freq)]
               [:td (str date)]]
              ))]))
 
-(defn format-donor-amounts [amounts]
-  (join ", "
-        (reduce (fn [v [count amount]]
-                  (conj v (str count " x " (util/tonumber amount "£")))) [] amounts)))
-
-(defn get-total [amounts]
-  (reduce (fn [v [count amount]] (+ v (* count amount))) 0 amounts))
-
 (defn donor-report []
-  (let [amount-analysis (fn [txns] (map (fn [[amount txn]] [(count txn) amount]) (group-by :in txns)))
-        donor-fn (fn [[_ {:keys [names txns]}]] [names (count txns) (amount-analysis txns) (:date (last txns))])
+  (let [amount-analysis (fn [txns]
+                          (map (fn [[amount txn]] [(count txn) amount])
+                               (group-by :in txns)))
+        donor-fn (fn [[_ {:keys [names txns]}]]
+                   [names (count txns) (amount-analysis txns) (:date (last txns))])
         report-list (map donor-fn @cache/name-cache)]
     [:table.table.table-striped
      [:thead.table-light
@@ -61,26 +45,30 @@
      (into [:tbody]
            (for [[account-name count amounts date] report-list]
              [:tr
-              [:td (format-account-name account-name)]
+              [:td  account-name];(r-util/format-account-name)
               [:td.text-right count]
-              [:td (format-donor-amounts amounts)]
-              [:td.text-right (util/tonumber (get-total amounts) "£")]
+              [:td (r-util/format-donor-amounts amounts)]
+              [:td.text-right (util/tonumber (r-util/get-total amounts) "£")]
               [:td (str date)]]))]))
 
 (defn report [data analysis-date]
   (when (and data analysis-date)
-    (let [processed-transactions (->> data
-                                      :txns
-                                      alloc/process-income
-                                      (anal/analyse-donations analysis-date))]
+    (let [allocd-txns (->> data
+                           :txns
+                           alloc/process-income)
+          processed-transactions (anal/analyse-donations analysis-date allocd-txns)]
       (state/add-processed-transactions processed-transactions)
       [:div
        [:h4 (str "Donations as of " analysis-date)]
        [:h4 "Account summary"]
-       [:div
-        (map (fn [[k v] id] ^{:key id} [:p (str (name k) ": " v)])
+       [:div.row
+        (map (fn [[k v] id] ^{:key id} [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
              (:accinfo data)
              (range))]
+       [:div.row
+        [:div.col-md-4]
+        [:div.col-md-4 (str "First transaction: " (-> processed-transactions first :date str))]
+        [:div.col-md-4 (str "Last transaction: " (-> processed-transactions last :date str))]]
        [:h4 "Current donations"]
        (filter-donations processed-transactions
                          (fn [x] (contains? x :current)))

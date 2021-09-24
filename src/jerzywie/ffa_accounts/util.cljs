@@ -32,7 +32,7 @@
   ([v curr]
    (cond
      (nil? v) ""
-     (js/isNaN v) ""
+     (js/isNaN v) v
      v (g/format "%s%0.2f" curr v)
      :else ""))
   ([v]
