@@ -9,10 +9,6 @@
   (cache/empty-cache)
   (f))
 
-(defn dbg-> [v msg]
-  (prn "dbg-> " msg v)
-  v)
-
 (def extract-result
   (map #(-> %
             .-target

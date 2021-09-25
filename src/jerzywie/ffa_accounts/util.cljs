@@ -6,6 +6,10 @@
 
 (def month-names ["Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"])
 
+(defn dbg-> [v msg]
+  (prn "dbg-> " msg v)
+  v)
+
 (defn parse-iso-date-string
   "Parse date string of form 'yyyy-mm-dd'"
   [iso-date-string]

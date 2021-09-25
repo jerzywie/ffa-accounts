@@ -4,19 +4,17 @@
    [clojure.string :refer [join trim replace starts-with? replace-first]] ))
 
 (defn format-account-name [name-set]
-  (let [reducer (fn [s1 s2] (str s1 "|" s2))
-        chop-start (fn [s start]
-                     (if (starts-with? s start)
-                       (replace-first s start "")
-                       s))]
+  (let [chop-start (fn [s start] (if (starts-with? s start)
+                                  (replace-first s start "")
+                                  s))]
     (-> name-set
         vec
         sort
-        (#(reduce reducer nil %))
+        (#(join "|" %))
+        trim
         (replace "||" "|")
         (chop-start "|")
-        (replace "|" " & ")
-        trim)))
+        (replace "|" " & "))))
 
 (defn format-donor-amounts [amounts]
   (join ", "
