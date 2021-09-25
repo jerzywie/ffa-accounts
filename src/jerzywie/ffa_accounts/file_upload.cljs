@@ -1,8 +1,9 @@
 (ns jerzywie.ffa-accounts.file-upload
-  (:require [cljs.core.async :as async :refer [put! chan <!]]
-            [goog.labs.format.csv :as csv]
-            [jerzywie.ffa-accounts.csv :as mycsv]
-            [jerzywie.ffa-accounts.state :as state])
+  (:require [jerzywie.ffa-accounts.csv :as mycsv] 
+            [jerzywie.ffa-accounts.allocate :as alloc]
+            [jerzywie.ffa-accounts.state :as state]
+            [cljs.core.async :as async :refer [put! chan <!]]
+            [goog.labs.format.csv :as csv])
   (:require-macros [cljs.core.async.macros :refer [go-loop]]))
 
 (def first-file
@@ -35,8 +36,12 @@
     (recur)))
 
 (go-loop []
-  (state/add-data! (<! file-reads))
-  (recur))
+  (let [data (<! file-reads)]
+    (state/add-data! data)
+    (state/add-allocd-txns! (->> data
+                                 :txns
+                                 alloc/process-income))
+    (recur)))
 
 (defn upload-btn [file-name]
   [:span.upload-label

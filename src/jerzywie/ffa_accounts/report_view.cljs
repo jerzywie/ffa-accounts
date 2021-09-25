@@ -1,6 +1,5 @@
 (ns jerzywie.ffa-accounts.report-view
   (:require
-   [jerzywie.ffa-accounts.allocate :as alloc]
    [jerzywie.ffa-accounts.analyse :as anal]
    [jerzywie.ffa-accounts.util :as util]
    [jerzywie.ffa-accounts.report-util :as r-util] 
@@ -53,9 +52,7 @@
 
 (defn report [data analysis-date-or-nil]
   (when data
-    (let [allocd-txns (->> data
-                           :txns
-                           alloc/process-income)
+    (let [allocd-txns (:allocd-txns (state/state))
           date-first-txn (-> data :txns first :date)
           date-last-txn (-> data :txns last :date)
           analysis-date (or analysis-date-or-nil date-last-txn)]
