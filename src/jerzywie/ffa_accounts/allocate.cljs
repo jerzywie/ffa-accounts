@@ -1,6 +1,6 @@
 (ns jerzywie.ffa-accounts.allocate
   (:require [jerzywie.ffa-accounts.cache :as nc]
-            [jerzywie.ffa-accounts.util :as u]
+            [jerzywie.ffa-accounts.util :as util]
             [clojure.string :as s]))
 
 (def empty-name {:names #{} :group nil :filterby nil})
@@ -12,7 +12,7 @@
   (-> text
       (s/replace bank-credit "")
       (s/replace transfer-from "")
-      (u/strip-last-char-if "&")
+      (util/strip-last-char-if "&")
       s/trim))
 
 (defn make-group [name desc-less-prefix]
@@ -47,7 +47,7 @@
 
 (defn add-transactions [txns key]
   (let [entity (nc/get-cache-value key)
-        account-name (:names entity)
+        account-name (util/format-account-name (:names entity))
         filter-fn (make-filter-fn entity)
         filtered-txns (->> (filter filter-fn txns)
                            (map #(assoc % :account-name account-name)))]

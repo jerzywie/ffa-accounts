@@ -10,6 +10,7 @@
    [jerzywie.ffa-accounts.allocate-async-test]
    [jerzywie.ffa-accounts.analyse-test]
    [jerzywie.ffa-accounts.report-util-test]
+   [jerzywie.ffa-accounts.util-test]
 
    [cljs.test :as test]
    [figwheel.main.async-result :as async-result]

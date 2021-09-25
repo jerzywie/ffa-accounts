@@ -41,3 +41,16 @@
      :else ""))
   ([v]
    (tonumber v "")))
+
+(defn format-account-name [name-set]
+  (let [chop-start (fn [s start] (if (s/starts-with? s start)
+                                   (s/replace-first s start "")
+                                   s))]
+    (-> name-set
+        vec
+        sort
+        (#(s/join "|" %))
+        s/trim
+        (s/replace "||" "|")
+        (chop-start "|")
+        (s/replace "|" " & "))))

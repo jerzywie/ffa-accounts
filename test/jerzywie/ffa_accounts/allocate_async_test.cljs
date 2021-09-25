@@ -2,6 +2,7 @@
   (:require [jerzywie.ffa-accounts.allocate :as sut]
             [jerzywie.ffa-accounts.test-util :as test-util]
             [jerzywie.ffa-accounts.csv :as csv]
+            [jerzywie.ffa-accounts.util :as util]
             [cljs.test :refer [deftest is use-fixtures async]]
             [cljs.core.async :as async :refer [go <!]]))
 
@@ -30,10 +31,10 @@
                (is (= (count (:txns bd-tx)) 6) "Check total BD transactions.")
                (is (= (first (:names bd-tx)) BD) "Check account name.")
                (is (= (:names bd-tx) #{BD}) "Check account name.")
-               (is (= (-> bd-tx :txns first :account-name first) BD) "Check account-name is propagated to transactions.")
+               (is (= (-> bd-tx :txns first :account-name) BD) "Check (formatted) account-name is propagated to transactions.")
                (is (= (-> bd-tx :txns first :name) BD) "Check it matches the name.")
                (is (= (:names sc-tx) #{CH SO}) "Check S+C account-name.")
-               (is (= (:names sc-tx) (-> sc-tx :txns first :account-name)) "Check propagation of S+C account name.")
+               (is (= (util/format-account-name (:names sc-tx)) (-> sc-tx :txns first :account-name)) "Check propagation of (formatted) S+C account name.")
                (is (= (count (filter #(= (:name %) CH) (:txns sc-tx))) 16) "Check number of CH txns.")
                (is (= (count (filter #(= (:name %) SO) (:txns sc-tx))) 4) "Check number of SO txns.")
                (is (= (:filterby sc-tx) :group) "Check that this is a 'group' account.")

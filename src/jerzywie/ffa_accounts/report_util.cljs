@@ -1,23 +1,10 @@
 (ns jerzywie.ffa-accounts.report-util
   (:require
    [jerzywie.ffa-accounts.util :as util]
-   [clojure.string :refer [join trim replace starts-with? replace-first]] ))
-
-(defn format-account-name [name-set]
-  (let [chop-start (fn [s start] (if (starts-with? s start)
-                                  (replace-first s start "")
-                                  s))]
-    (-> name-set
-        vec
-        sort
-        (#(join "|" %))
-        trim
-        (replace "||" "|")
-        (chop-start "|")
-        (replace "|" " & "))))
+   [clojure.string :as s]))
 
 (defn format-donor-amounts [amounts]
-  (join ", "
+  (s/join ", "
         (reduce (fn [v [count amount]]
                   (conj v (str count " x " (util/tonumber amount "£")))) [] amounts)))
 

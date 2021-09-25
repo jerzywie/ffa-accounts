@@ -20,7 +20,7 @@
      (into [:tbody]
            (for [{:keys [freq date account-name in]} filtered-txns]
              [:tr
-              [:td (r-util/format-account-name account-name)]
+              [:td account-name]
               [:td.text-end (util/tonumber in)]
               [:td (format-freq freq)]
               [:td (str date)]]
@@ -30,9 +30,13 @@
   (let [amount-analysis (fn [txns]
                           (map (fn [[amount txn]] [(count txn) amount])
                                (group-by :in txns)))
-        donor-fn (fn [[_ {:keys [names txns]}]]
-                   [names (count txns) (amount-analysis txns) (:date (last txns))])
-        report-list (map donor-fn @cache/name-cache)]
+        donor-fn (fn [[_ {:keys [txns]}]]
+                   [(:account-name (first txns))
+                    (count txns)
+                    (amount-analysis txns)
+                    (:date (first txns))
+                    (:date (last txns))])
+        report-list (sort (map donor-fn @cache/name-cache))]
     [:table.table.table-striped
      [:thead.table-light
       [:tr
@@ -40,15 +44,17 @@
        [:th {:scope "col"} "Count"]
        [:th {:scope "col"} "Donations"]
        [:th {:scope "col"} "Total"]
+       [:th {:scope "col"} "First donation"]
        [:th {:scope "col"} "Last donation"]]]
      (into [:tbody]
-           (for [[account-name count amounts date] report-list]
+           (for [[account-name count amounts f-date l-date] report-list]
              [:tr
-              [:td (r-util/format-account-name account-name)]
+              [:td account-name]
               [:td.text-right count]
               [:td (r-util/format-donor-amounts amounts)]
               [:td.text-right (util/tonumber (r-util/get-total amounts) "£")]
-              [:td (str date)]]))]))
+              [:td (str f-date)]
+              [:td (str l-date)]]))]))
 
 (defn report [data analysis-date-or-nil]
   (when data
