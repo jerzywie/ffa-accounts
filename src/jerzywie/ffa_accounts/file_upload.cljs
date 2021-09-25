@@ -25,6 +25,7 @@
 (def file-reads (chan 1 extract-result))
 
 (defn put-upload [e]
+  (state/remove-file-data!)
   (put! upload-reqs e))
 
 (go-loop []

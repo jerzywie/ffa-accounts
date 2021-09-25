@@ -13,7 +13,7 @@
   (reset! app-state initial-app-state))
 
 (defn remove-file-data! []
-  (swap! app-state dissoc :file-name :data :processed-txns))
+  (swap! app-state dissoc :file-name :data :processed-txns :analysis-date))
 
 (defn add-stuff! [k v]
   (swap! app-state assoc k v))
