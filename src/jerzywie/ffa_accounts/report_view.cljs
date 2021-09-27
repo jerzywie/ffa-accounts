@@ -7,24 +7,39 @@
    [jerzywie.ffa-accounts.state :as state]
    [clojure.string :refer [capitalize]]))
 
+(def caption-map {:weekly "Weekly regulars"
+                  :monthly "Monthly regulars"
+                  :weekly-grand-total "Net donations/week"
+                  :monthly-grand-total "Net donations/month"
+                  :new-amount "Grand total one-offs"
+                  :one-off "Grand total one-offs"})
+
 (defn filter-donations [processed-txns filter-fn]
   (let [filtered-txns (filter filter-fn processed-txns)
         format-freq (fn [f-set] (-> f-set first name capitalize))]
-    [:table.table.table-striped
-     [:thead.table-light
-      [:tr
-       [:th "Account name"]
-       [:th.text-end "Amount"]
-       [:th "Frequency"]
-       [:th "Last paid"]]]
-     (into [:tbody]
-           (for [{:keys [freq date account-name in]} filtered-txns]
-             [:tr
-              [:td account-name]
-              [:td.text-end (util/tonumber in)]
-              [:td (format-freq freq)]
-              [:td (str date)]]
-             ))]))
+    [:div
+     [:table.table.table-striped
+      [:thead.table-light
+       [:tr
+        [:th "Account name"]
+        [:th.text-end "Amount"]
+        [:th "Frequency"]
+        [:th "Last paid"]]]
+      (into [:tbody]
+            (for [{:keys [freq date account-name in]} filtered-txns]
+              [:tr
+               [:td account-name]
+               [:td.text-end (util/tonumber in)]
+               [:td (format-freq freq)]
+               [:td (str date)]]
+              ))]
+     [:h5 "Summary"]
+     [:div.row.mb4
+      (map (fn [[k v] id] ^{:key id}
+             (when (> v 0)
+               [:div.col.mb-3 (str (k caption-map) ": " (util/tonumber v "£"))]))
+           (r-util/get-summary-totals filtered-txns)
+           (range))]]))
 
 (defn donor-report []
   (let [amount-analysis (fn [txns]
@@ -52,7 +67,7 @@
               [:td account-name]
               [:td.text-right count]
               [:td (r-util/format-donor-amounts amounts)]
-              [:td.text-right (util/tonumber (r-util/get-total amounts) "£")]
+              [:td.text-right (util/tonumber (r-util/get-donor-amount-total amounts) "£")]
               [:td (str f-date)]
               [:td (str l-date)]]))]))
 
