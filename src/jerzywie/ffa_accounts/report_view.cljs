@@ -90,7 +90,9 @@
                [:td desc]
                [:td type]
                [:td.text-right (util/tonumber out)]]))]
-     [:h5 "Summary"]]))
+     [:h5 "Summary"]
+     (let [payees (group-by (partial :desc) filtered-txns)]
+       [:div (with-out-str (pprint (map (fn [[k v]] [k (r-util/add-up v :out)]) payees)))])]))
 
 (defn report [data analysis-date-or-nil]
   (when data

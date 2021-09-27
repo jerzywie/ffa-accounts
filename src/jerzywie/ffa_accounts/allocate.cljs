@@ -64,11 +64,11 @@
     (doall (map (partial add-transactions in-txns) (nc/get-cache-keys)))
     @nc/name-cache))
 
-(defn get-payment-type [raw-type]
-  (s/replace raw-type " to" ""))
+(defn prettify-payment-type [{:keys [type] :as txn}]
+  (let [pretty-type (s/replace type " to" "")]
+    (assoc txn :type pretty-type)))
 
 (defn process-expenditure [transactions]
   (->> transactions
        (filter #(nil? (:in %)))
-       ;(map #((let [type (get-payment-type (:type %))] (assoc % :type type))))
-       ))
+       (map prettify-payment-type)))
