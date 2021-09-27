@@ -1,6 +1,7 @@
 (ns jerzywie.ffa-accounts.util
   (:require [clojure.string :as s]
             [java.time :as j]
+            [java.time.temporal :as jt]
             [goog.string :as g]
             [goog.string.format]))
 
@@ -54,3 +55,6 @@
         (s/replace "||" "|")
         (chop-start "|")
         (s/replace "|" " & "))))
+
+(defn days-between [d1 d2]
+  (.until d1 d2 (.. jt/ChronoUnit -DAYS)))

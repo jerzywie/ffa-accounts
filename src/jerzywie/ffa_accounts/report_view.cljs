@@ -94,9 +94,10 @@
             [:h4 "Donations in last month"]
             (filter-donations processed-transactions
                               (fn [x] (contains? x :current)))
-            [:h4 "One offs"]
+            [:h4 "One offs in last month"]
             (filter-donations processed-transactions
-                              (fn [x] (contains? (:freq x) :one-off)))
+                              (fn [x] (and (contains? (:freq x) :one-off)
+                                          (> 32 (util/days-between (:date x) analysis-date)))))
             [:h4 "Donor report"]
             (donor-report)
             ]))))

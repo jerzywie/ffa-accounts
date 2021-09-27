@@ -1,15 +1,9 @@
 (ns jerzywie.ffa-accounts.analyse
   (:require [jerzywie.ffa-accounts.cache :as nc]
-            [java.time.temporal :as jt]))
-
-;(defn days-between [d1 d2]
-;  (.. java.time.temporal.ChronoUnit/DAYS (between d1 d2)))
-
-(defn days-between [d1 d2]
-  (.until d1 d2 (.. jt/ChronoUnit -DAYS)))
+            [jerzywie.ffa-accounts.util :as util]))
 
 (defn deduce-period [d1 d2]
-  (let [days (days-between d1 d2)]
+  (let [days (util/days-between d1 d2)]
     (cond
       (= days 7) :weekly
       (or (= days 6) (= days 8)) :approx-weekly
@@ -45,11 +39,11 @@
   (if (= 1 (count donations-tranche))
     (list (update (first donations-tranche) :freq conj :one-off))
     (let [within-month? (fn [d1 d2]
-                          (let [dd (days-between d1 d2)] (and (> dd -1) (< dd 32))))
+                          (let [dd (util/days-between d1 d2)] (and (> dd -1) (< dd 32))))
           grouped-donations (group-by #(within-month? (:date %) analysis-date)
                                       donations-tranche)
           add-recency (fn [{:keys [date freq] :as txn}]
-                        (let [day-diff (days-between date analysis-date)
+                        (let [day-diff (util/days-between date analysis-date)
                               max-day-diff ((first freq) {:weekly 7 :monthly 31})]
                           (if (some #{day-diff} (range max-day-diff))
                             (assoc txn :current true)
