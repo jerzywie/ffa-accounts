@@ -91,10 +91,10 @@
              [:div.col-md-4]
              [:div.col-md-4 (str "First transaction: " date-first-txn)]
              [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
-            [:h4 "Donations in last month"]
+            [:h4 "Regular donations in last month"]
             (filter-donations processed-transactions
                               (fn [x] (contains? x :current)))
-            [:h4 "One offs in last month"]
+            [:h4 "One off amounts in last month"]
             (filter-donations processed-transactions
                               (fn [x] (and (contains? (:freq x) :one-off)
                                           (> 32 (util/days-between (:date x) analysis-date)))))
