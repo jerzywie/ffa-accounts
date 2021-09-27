@@ -35,12 +35,12 @@
                [:td (str date)]]
               ))]
      [:h5 "Summary"]
-     [:div.row.mb4
+     [:div.row.mb-3
       (map (fn [[k v] id]
              (when (> v 0)
-               ^{:key id} [:div.col.mb-3
+               ^{:key id} [:div.col
                 (str (k caption-map) ": " (util/tonumber v "£"))]))
-           (r-util/get-summary-totals filtered-txns)
+           (r-util/get-summary-donation-totals filtered-txns)
            (range))]]))
 
 (defn donor-report []
@@ -91,8 +91,12 @@
                [:td type]
                [:td.text-right (util/tonumber out)]]))]
      [:h5 "Summary"]
-     (let [payees (group-by (partial :desc) filtered-txns)]
-       [:div (with-out-str (pprint (map (fn [[k v]] [k (r-util/add-up v :out)]) payees)))])]))
+     [:div.row.mb-3
+      (map (fn [[k v] id] ^{:key id}
+             [:div.col (str k ": " (util/tonumber v "£"))])
+           (r-util/get-summary-expenditure-totals filtered-txns)
+           (range))]
+     ]))
 
 (defn report [data analysis-date-or-nil]
   (when data
