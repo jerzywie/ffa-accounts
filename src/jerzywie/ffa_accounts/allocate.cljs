@@ -63,3 +63,12 @@
     (doall (map cache-name in-txns))
     (doall (map (partial add-transactions in-txns) (nc/get-cache-keys)))
     @nc/name-cache))
+
+(defn get-payment-type [raw-type]
+  (s/replace raw-type " to" ""))
+
+(defn process-expenditure [transactions]
+  (->> transactions
+       (filter #(nil? (:in %)))
+       ;(map #((let [type (get-payment-type (:type %))] (assoc % :type type))))
+       ))

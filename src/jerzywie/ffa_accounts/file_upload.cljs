@@ -42,6 +42,9 @@
     (state/add-allocd-txns! (->> data
                                  :txns
                                  alloc/process-income))
+    (state/add-exp! (->> data
+                         :txns
+                         alloc/process-expenditure))
     (recur)))
 
 (defn upload-btn [file-name]

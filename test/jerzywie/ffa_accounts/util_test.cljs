@@ -16,3 +16,14 @@
     #{"Z" "Y" "x" "p"}    "Y & Z & p & x"
     #{"Z & Y" "A"}        "A & Z & Y"
     ))
+
+(deftest within-last-month-of-tests
+  (are [analysis-date other-date result] (= (sut/within-last-month-of
+                                             (sut/md analysis-date)
+                                             (sut/md other-date))
+                                            result)
+    [2021 9 27] [2021 9 27] true
+    [2021 9 27] [2021 9 28] false
+    [2021 9 27] [2021 8 27] true
+    [2021 9 27] [2021 8 26] false
+    [2021 9 27] [2021 9 20] true))

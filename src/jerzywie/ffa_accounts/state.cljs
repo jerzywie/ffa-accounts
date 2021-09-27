@@ -33,13 +33,16 @@
 (defn add-allocd-txns! [txns]
   (add-stuff! :allocd-txns txns))
 
+(defn add-exp! [txns]
+  (add-stuff! :exp txns))
+
 (defn debug-app-state []
   (when ^boolean js/goog.DEBUG
     (let [state @app-state]
       [:pre.tiny-words
        [:div.mb-3.d-print-none
         [:h5 "debug app state"]
-        [:div (with-out-str (pprint (assoc (dissoc state :data :processed-txns :allocd-txns) :data-state  (if (:data state) "Data exists." "No data."))))]
+        [:div (with-out-str (pprint (assoc (dissoc state :data :processed-txns :allocd-txns :exp) :data-state  (if (:data state) "Data exists." "No data."))))]
         [:h6.mt-3 "Processed-txns ('type' and 'desc' omitted)"]
         [:table.table.table-sm.table-striped
          [:thead
@@ -62,4 +65,6 @@
                   [:td freq]
                   [:td (when current "current")]]))]
         [:h6.mt3 ":allocd-txns"]
-        [:div (with-out-str (pprint (:allocd-txns state)))]]])))
+        [:div (with-out-str (pprint (:allocd-txns state)))]
+        [:h6.mt3 ":exp"]
+        [:div (with-out-str (pprint (:exp state)))]]])))

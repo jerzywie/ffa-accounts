@@ -5,7 +5,8 @@
    [jerzywie.ffa-accounts.report-util :as r-util] 
    [jerzywie.ffa-accounts.cache :as cache]
    [jerzywie.ffa-accounts.state :as state]
-   [clojure.string :refer [capitalize]]))
+   [clojure.string :refer [capitalize]]
+   [clojure.pprint :refer [pprint]]))
 
 (def caption-map {:weekly "Weekly regulars"
                   :monthly "Monthly regulars"
@@ -35,9 +36,10 @@
               ))]
      [:h5 "Summary"]
      [:div.row.mb4
-      (map (fn [[k v] id] ^{:key id}
+      (map (fn [[k v] id]
              (when (> v 0)
-               [:div.col.mb-3 (str (k caption-map) ": " (util/tonumber v "£"))]))
+               ^{:key id} [:div.col.mb-3
+                (str (k caption-map) ": " (util/tonumber v "£"))]))
            (r-util/get-summary-totals filtered-txns)
            (range))]]))
 
@@ -71,6 +73,25 @@
               [:td (str f-date)]
               [:td (str l-date)]]))]))
 
+(defn expenditure-report [txns filter-fn]
+  (let [filtered-txns (filter filter-fn txns)]
+    [:div
+     [:table.table.table-striped
+      [:thead.table-light
+       [:tr
+        [:th "Date"]
+        [:th "Payment to"]
+        [:th "Payment type"]
+        [:th "Amount"]]]
+      (into [:tbody]
+            (for [{:keys [date desc type out]} filtered-txns]
+              [:tr
+               [:td (str date)]
+               [:td desc]
+               [:td type]
+               [:td.text-right (util/tonumber out)]]))]
+     [:h5 "Summary"]]))
+
 (defn report [data analysis-date-or-nil]
   (when data
     (let [allocd-txns (:allocd-txns (state/state))
@@ -97,7 +118,11 @@
             [:h4 "One off amounts in last month"]
             (filter-donations processed-transactions
                               (fn [x] (and (contains? (:freq x) :one-off)
-                                          (> 32 (util/days-between (:date x) analysis-date)))))
+                                          (util/within-last-month-of analysis-date (:date x)))))
+            [:h4 "Expenditure in last month"]
+            [expenditure-report
+             (:exp (state/state))
+             (fn [x] (util/within-last-month-of analysis-date (:date x)))]
             [:h4 "Donor report"]
             (donor-report)
             ]))))

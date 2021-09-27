@@ -39,3 +39,15 @@
                (is (= (count (filter #(= (:name %) SO) (:txns sc-tx))) 4) "Check number of SO txns.")
                (is (= (:filterby sc-tx) :group) "Check that this is a 'group' account.")
                (done))))))
+
+(deftest process-expenditure-tests
+  (let [_ (test-util/request-input-element-value "inp")]
+    (async done
+           (go
+             (let [exp-tx (-> (<! test-util/file-reads)
+                              csv/transform-raw-data
+                              :txns
+                              sut/process-expenditure)]
+               ;(prn "exp " exp-tx)
+               (is (= 1 1) "Dummy test")
+               (done))))))
