@@ -19,6 +19,16 @@
   (let [filtered-txns (filter filter-fn processed-txns)
         format-freq (fn [f-set] (-> f-set first name capitalize))]
     [:div
+     [:h5 "Summary"]
+     [:div.row.mb-3
+      (map (fn [[k v] id]
+             (when (> v 0)
+               ^{:key id} [:div.col
+                           (str (k caption-map) ": " (util/tonumber v "£"))]))
+           (r-util/get-summary-donation-totals filtered-txns)
+           (range))]
+
+     [:h5 "Detail"]
      [:table.table.table-striped
       [:thead.table-light
        [:tr
@@ -32,16 +42,7 @@
                [:td account-name]
                [:td.text-end (util/tonumber in)]
                [:td (format-freq freq)]
-               [:td (str date)]]
-              ))]
-     [:h5 "Summary"]
-     [:div.row.mb-3
-      (map (fn [[k v] id]
-             (when (> v 0)
-               ^{:key id} [:div.col
-                (str (k caption-map) ": " (util/tonumber v "£"))]))
-           (r-util/get-summary-donation-totals filtered-txns)
-           (range))]]))
+               [:td (str date)]]))]]))
 
 (defn donor-report []
   (let [amount-analysis (fn [txns]
@@ -69,34 +70,37 @@
               [:td account-name]
               [:td.text-right count]
               [:td (r-util/format-donor-amounts amounts)]
-              [:td.text-right (util/tonumber (r-util/get-donor-amount-total amounts) "£")]
+              [:td.text-end (util/tonumber (r-util/get-donor-amount-total amounts) "£")]
               [:td (str f-date)]
               [:td (str l-date)]]))]))
 
 (defn expenditure-report [txns filter-fn]
   (let [filtered-txns (filter filter-fn txns)]
     [:div
+     [:h5 "Summary"]
+     [:div.row.mb-3
+      (let [summ-exp (r-util/get-summary-expenditure-totals filtered-txns)]
+        (map (fn [[k v] id] ^{:key id}
+               [:div.col (str k ": " (util/tonumber v "£"))])
+             summ-exp
+             (range))
+       ; [:div.col (with-out-str (pprint summ-exp))]
+        )]
+     [:h5 "Detail"]
      [:table.table.table-striped
       [:thead.table-light
        [:tr
         [:th "Date"]
         [:th "Payment to"]
         [:th "Payment type"]
-        [:th "Amount"]]]
+        [:th.text-end "Amount"]]]
       (into [:tbody]
             (for [{:keys [date desc type out]} filtered-txns]
               [:tr
                [:td (str date)]
                [:td desc]
                [:td type]
-               [:td.text-right (util/tonumber out)]]))]
-     [:h5 "Summary"]
-     [:div.row.mb-3
-      (map (fn [[k v] id] ^{:key id}
-             [:div.col (str k ": " (util/tonumber v "£"))])
-           (r-util/get-summary-expenditure-totals filtered-txns)
-           (range))]
-     ]))
+               [:td.text-end (util/tonumber out)]]))]]))
 
 (defn report [data analysis-date-or-nil]
   (when data

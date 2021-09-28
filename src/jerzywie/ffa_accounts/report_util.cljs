@@ -38,5 +38,9 @@
            :monthly-grand-total (calc-grand-total summ-map :monthly))))
 
 (defn get-summary-expenditure-totals [txns]
-  (let [payees (group-by (partial :desc) txns)]
-    (map (fn [[k v]] [k (add-up v :out)]) payees)) )
+  (let [summ-exp (->> txns
+                      (group-by (partial :desc))
+                      (map (fn [[k v]] {k (add-up v :out)}))
+                      (apply merge))]
+    (assoc summ-exp
+           "Total expenditure for month" (apply + (vals summ-exp)))))
