@@ -107,32 +107,32 @@
     (let [allocd-txns (:allocd-txns (state/state))
           date-first-txn (-> data :txns first :date)
           date-last-txn (-> data :txns last :date)
-          analysis-date (or analysis-date-or-nil date-last-txn)]
-      (let [processed-transactions (anal/analyse-donations analysis-date allocd-txns)]
-           (state/add-processed-transactions processed-transactions)
-           (state/add-analysis-date! analysis-date)
-           [:div
-            [:h4 (str "Donations as of " analysis-date)]
-            [:h4 "Account summary"]
-            [:div.row
-             (map (fn [[k v] id] ^{:key id} [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
-                  (:accinfo data)
-                  (range))]
-            [:div.row
-             [:div.col-md-4]
-             [:div.col-md-4 (str "First transaction: " date-first-txn)]
-             [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
-            [:h4 "Regular donations in last month"]
-            (filter-donations processed-transactions
-                              (fn [x] (contains? x :current)))
-            [:h4 "One off amounts in last month"]
-            (filter-donations processed-transactions
-                              (fn [x] (and (contains? (:freq x) :one-off)
-                                          (util/within-last-month-of analysis-date (:date x)))))
-            [:h4 "Expenditure in last month"]
-            [expenditure-report
-             (:exp (state/state))
-             (fn [x] (util/within-last-month-of analysis-date (:date x)))]
-            [:h4 "Donor report"]
-            (donor-report)
-            ]))))
+          analysis-date (or analysis-date-or-nil date-last-txn)
+          processed-transactions (anal/analyse-donations analysis-date allocd-txns)]
+      (state/add-processed-transactions! processed-transactions)
+      (state/add-analysis-date! analysis-date)
+      [:div
+       [:h4 (str "Donations as of " analysis-date)]
+       [:h4 "Account summary"]
+       [:div.row
+        (map (fn [[k v] id] ^{:key id} [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
+             (:accinfo data)
+             (range))]
+       [:div.row
+        [:div.col-md-4]
+        [:div.col-md-4 (str "First transaction: " date-first-txn)]
+        [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
+       [:h4 "Regular donations in last month"]
+       (filter-donations processed-transactions
+                         (fn [x] (contains? x :current)))
+       [:h4 "One off amounts in last month"]
+       (filter-donations processed-transactions
+                         (fn [x] (and (contains? (:freq x) :one-off)
+                                     (util/within-last-month-of analysis-date (:date x)))))
+       [:h4 "Expenditure in last month"]
+       [expenditure-report
+        (:exp (state/state))
+        (fn [x] (util/within-last-month-of analysis-date (:date x)))]
+       [:h4 "Donor report"]
+       (donor-report)
+       ])))

@@ -27,7 +27,7 @@
 (defn add-data! [data]
   (add-stuff! :data data))
 
-(defn add-processed-transactions [txns]
+(defn add-processed-transactions! [txns]
   (add-stuff! :processed-txns txns))
 
 (defn add-allocd-txns! [txns]
