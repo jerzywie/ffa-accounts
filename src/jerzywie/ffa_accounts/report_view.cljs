@@ -5,6 +5,7 @@
    [jerzywie.ffa-accounts.report-util :as r-util] 
    [jerzywie.ffa-accounts.cache :as cache]
    [jerzywie.ffa-accounts.state :as state]
+   [jerzywie.ffa-accounts.graph-view :as graph-view]
    [clojure.string :refer [capitalize]]
    [clojure.pprint :refer [pprint]]))
 
@@ -112,27 +113,31 @@
       (state/add-processed-transactions! processed-transactions)
       (state/add-analysis-date! analysis-date)
       [:div
-       [:h4 (str "Donations as of " analysis-date)]
-       [:h4 "Account summary"]
        [:div.row
-        (map (fn [[k v] id] ^{:key id} [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
-             (:accinfo data)
-             (range))]
-       [:div.row
-        [:div.col-md-4]
-        [:div.col-md-4 (str "First transaction: " date-first-txn)]
-        [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
-       [:h4 "Regular donations in last month"]
-       (filter-donations processed-transactions
-                         (fn [x] (contains? x :current)))
-       [:h4 "One off amounts in last month"]
-       (filter-donations processed-transactions
-                         (fn [x] (and (contains? (:freq x) :one-off)
-                                     (util/within-last-month-of analysis-date (:date x)))))
-       [:h4 "Expenditure in last month"]
-       [expenditure-report
-        (:exp (state/state))
-        (fn [x] (util/within-last-month-of analysis-date (:date x)))]
-       [:h4 "Donor report"]
-       (donor-report)
+        [:div.col
+         [:h4 (str "Donations as of " analysis-date)]
+         [:h4 "Account summary"]
+         [:div.row
+          (map (fn [[k v] id] ^{:key id} [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
+               (:accinfo data)
+               (range))]
+         [:div.row
+          [:div.col-md-4]
+          [:div.col-md-4 (str "First transaction: " date-first-txn)]
+          [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
+         [:h4 "Regular donations in last month"]
+         (filter-donations processed-transactions
+                           (fn [x] (contains? x :current)))
+         [:h4 "One off amounts in last month"]
+         (filter-donations processed-transactions
+                           (fn [x] (and (contains? (:freq x) :one-off)
+                                       (util/within-last-month-of analysis-date (:date x)))))
+         [:h4 "Expenditure in last month"]
+         [expenditure-report
+          (:exp (state/state))
+          (fn [x] (util/within-last-month-of analysis-date (:date x)))]
+         [:h4 "Donor report"]
+         (donor-report)]
+        [:div.col
+         [graph-view/do-graph]]]
        ])))

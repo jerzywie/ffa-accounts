@@ -36,6 +36,9 @@
 (defn add-exp! [txns]
   (add-stuff! :exp txns))
 
+(defn set-charts-ready! []
+  (add-stuff! :charts-ready? true))
+
 (defn debug-app-state []
   (when ^boolean js/goog.DEBUG
     (let [state @app-state]

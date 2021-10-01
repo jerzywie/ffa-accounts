@@ -2,7 +2,15 @@
   (:require
    [goog.dom :as gdom]
    [reagent.dom :as rdom]
-   [jerzywie.ffa-accounts.home-page :as home]))
+   [jerzywie.ffa-accounts.home-page :as home]
+   [jerzywie.ffa-accounts.state :as state]))
+
+(defonce initialize
+  (do
+    (js/google.charts.load (clj->js {:packages ["corechart"]}))
+    (js/google.charts.setOnLoadCallback
+     (fn google-visualization-loaded []
+       (state/set-charts-ready!)))))
 
 (defn multiply [a b] (* a b))
 
