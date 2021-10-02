@@ -1,17 +1,6 @@
 (ns jerzywie.ffa-accounts.graph-view
   (:require
-   [jerzywie.ffa-accounts.state :as state]
-   [reagent.core :refer [atom]]))
-
-(def data-changed (atom true))
-
-(def more-data (atom 
-                [["X-axis" "Y-axis"]
-                 [1 20]
-                 [2 12]
-                 [3 48]
-                 ]))
-
+   [jerzywie.ffa-accounts.state :as state]))
 
 (defn data-table [data]
   (cond
@@ -25,17 +14,10 @@
      [:div
       {:ref
        (fn [this]
-         (when (and this @data-changed)
-           (prn "drawing data-changed?" @data-changed)
+         (when (and this (:graph-data-changed (state/state)))
+           (prn "drawing data-changed?" (:graph-data-changed (state/state)))
            (.draw (new (aget js/google.visualization chart-type) this)
                   (data-table data)
                   (clj->js options))
-           (reset! data-changed false)))}]
+           (state/reset-graph-data-changed!)))}]
      [:div "Loading..."])])
-
-(defn do-graph []
-  [:div.col {:id "chart-container"}
-   [draw-chart "LineChart" @more-data {:title "My graph title"
-                                      :hAxis {:title "X-axis"}
-                                      :vAxis {:title "Y-axis"}}]])
-

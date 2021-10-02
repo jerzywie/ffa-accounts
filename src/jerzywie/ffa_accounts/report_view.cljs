@@ -79,20 +79,21 @@
               [:td (str l-date)]]))]))
 
 (defn report-expenditure [txns filter-fn]
-  (let [filtered-txns (filter filter-fn txns)]
+  (let [filtered-txns (filter filter-fn txns)
+        summ-exp (r-util/get-summary-expenditure-totals filtered-txns)]
     [:div
      [:h5 "Summary"]
      [:div.row.mb-3
       [:div.col
-       (let [summ-exp (r-util/get-summary-expenditure-totals filtered-txns)]
-         (map (fn [{:keys [name amount]} id] ^{:key id}
-                [:div.col (str name ": " (util/tonumber amount "£"))])
-              summ-exp
-              (range))
+       (map (fn [{:keys [name amount]} id] ^{:key id}
+              [:div.col (str name ": " (util/tonumber amount "£"))])
+            summ-exp
+            (range))]]
                                         ;[:div.col (with-out-str (pprint summ-exp))]
-         [:div.col
-          (let [plot-data (r-util/summary-totals->array summ-exp)]
-            [graph-view/draw-chart "PieChart" plot-data {:title "Expenditure"}])])]]
+     [:div.row
+      [:div.col
+       (let [plot-data (r-util/summary-totals->array summ-exp)]
+         [graph-view/draw-chart "PieChart" plot-data {:title "Expenditure"}])]]
      [:h5 "Detail"]
      [:table.table.table-striped
       [:thead.table-light
@@ -150,7 +151,4 @@
           (fn [x] (util/within-last-month-of analysis-date (:date x)))]
 
          [:h4 "Donor report"]
-         [report-donors]]
-        [:div.col
-         [graph-view/do-graph]]]
-       ])))
+         [report-donors]]]])))

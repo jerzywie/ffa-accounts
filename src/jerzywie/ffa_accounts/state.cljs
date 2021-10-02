@@ -39,6 +39,12 @@
 (defn set-charts-ready! []
   (add-stuff! :charts-ready? true))
 
+(defn set-graph-data-changed! []
+  (add-stuff! :graph-data-changed true))
+
+(defn reset-graph-data-changed! []
+  (add-stuff! :graph-data-changed false))
+
 (defn debug-app-state []
   (when ^boolean js/goog.DEBUG
     (let [state @app-state]

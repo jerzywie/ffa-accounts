@@ -45,6 +45,7 @@
     (state/add-exp! (->> data
                          :txns
                          alloc/process-expenditure))
+    (state/set-graph-data-changed!)
     (recur)))
 
 (defn upload-btn [file-name]

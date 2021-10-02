@@ -13,4 +13,5 @@
        :on-change (fn [e]
                     (state/add-analysis-date!
                      (util/parse-iso-date-string
-                      (.-target.value e))))}]]))
+                      (.-target.value e)))
+                    (state/set-graph-data-changed!))}]]))
