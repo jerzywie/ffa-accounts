@@ -83,13 +83,16 @@
     [:div
      [:h5 "Summary"]
      [:div.row.mb-3
-      (let [summ-exp (r-util/get-summary-expenditure-totals filtered-txns)]
-        (map (fn [{:keys [name amount]} id] ^{:key id}
-               [:div.col (str name ": " (util/tonumber amount "£"))])
-             summ-exp
-             (range))
-        ;[:div.col (with-out-str (pprint summ-exp))]
-        )]
+      [:div.col
+       (let [summ-exp (r-util/get-summary-expenditure-totals filtered-txns)]
+         (map (fn [{:keys [name amount]} id] ^{:key id}
+                [:div.col (str name ": " (util/tonumber amount "£"))])
+              summ-exp
+              (range))
+                                        ;[:div.col (with-out-str (pprint summ-exp))]
+         [:div.col
+          (let [plot-data (r-util/summary-totals->array summ-exp)]
+            [graph-view/draw-chart "PieChart" plot-data {:title "Expenditure"}])])]]
      [:h5 "Detail"]
      [:table.table.table-striped
       [:thead.table-light

@@ -54,3 +54,11 @@
           {:name "Total expenditure for month"
            :amount (add-up summ-exp :amount)
            :is-total? true})))
+
+(defn summary-totals->array [summary-totals-map-list]
+  (->> summary-totals-map-list
+       (map (fn [{:keys [name amount is-total?]}]
+              (when-not is-total? [name amount])))
+       (filter identity)
+       (#(conj % ["Name" "Amount"]))
+       (into [])))
