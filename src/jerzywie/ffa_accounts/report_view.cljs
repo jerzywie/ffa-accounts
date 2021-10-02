@@ -16,18 +16,20 @@
                   :new-amount "Grand total one-offs"
                   :one-off "Grand total one-offs"})
 
-(defn filter-donations [processed-txns filter-fn]
+(defn report-donations [processed-txns filter-fn]
   (let [filtered-txns (filter filter-fn processed-txns)
-        format-freq (fn [f-set] (-> f-set first name capitalize))]
+        summ-donations (r-util/get-summary-donation-totals filtered-txns)]
     [:div
      [:h5 "Summary"]
      [:div.row.mb-3
-      (map (fn [[k v] id]
-             (when (> v 0)
-               ^{:key id} [:div.col
-                           (str (k caption-map) ": " (util/tonumber v "£"))]))
-           (r-util/get-summary-donation-totals filtered-txns)
+      (map (fn [{:keys [name amount]} id]
+             (when (> amount 0)
+               ^{:key id}
+               [:div.col
+                (str (name caption-map) ": " (util/tonumber amount "£"))]))
+           summ-donations
            (range))]
+     ;[:div.col (with-out-str (pprint summ-donations))]
 
      [:h5 "Detail"]
      [:table.table.table-striped
@@ -38,14 +40,15 @@
         [:th "Frequency"]
         [:th "Last paid"]]]
       (into [:tbody]
-            (for [{:keys [freq date account-name in]} filtered-txns]
-              [:tr
-               [:td account-name]
-               [:td.text-end (util/tonumber in)]
-               [:td (format-freq freq)]
-               [:td (str date)]]))]]))
+            (let [format-freq (fn [f-set] (-> f-set first name capitalize))]
+              (for [{:keys [freq date account-name in]} filtered-txns]
+                [:tr
+                 [:td account-name]
+                 [:td.text-end (util/tonumber in)]
+                 [:td (format-freq freq)]
+                 [:td (str date)]])))]]))
 
-(defn donor-report []
+(defn report-donors []
   (let [amount-analysis (fn [txns]
                           (map (fn [[amount txn]] [(count txn) amount])
                                (group-by :in txns)))
@@ -75,17 +78,17 @@
               [:td (str f-date)]
               [:td (str l-date)]]))]))
 
-(defn expenditure-report [txns filter-fn]
+(defn report-expenditure [txns filter-fn]
   (let [filtered-txns (filter filter-fn txns)]
     [:div
      [:h5 "Summary"]
      [:div.row.mb-3
       (let [summ-exp (r-util/get-summary-expenditure-totals filtered-txns)]
-        (map (fn [[k v] id] ^{:key id}
-               [:div.col (str k ": " (util/tonumber v "£"))])
+        (map (fn [{:keys [name amount]} id] ^{:key id}
+               [:div.col (str name ": " (util/tonumber amount "£"))])
              summ-exp
              (range))
-       ; [:div.col (with-out-str (pprint summ-exp))]
+        ;[:div.col (with-out-str (pprint summ-exp))]
         )]
      [:h5 "Detail"]
      [:table.table.table-striped
@@ -116,6 +119,7 @@
        [:div.row
         [:div.col
          [:h4 (str "Donations as of " analysis-date)]
+
          [:h4 "Account summary"]
          [:div.row
           (map (fn [[k v] id] ^{:key id} [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
@@ -125,19 +129,25 @@
           [:div.col-md-4]
           [:div.col-md-4 (str "First transaction: " date-first-txn)]
           [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
+
          [:h4 "Regular donations in last month"]
-         (filter-donations processed-transactions
-                           (fn [x] (contains? x :current)))
+         [report-donations
+          processed-transactions
+          (fn [x] (contains? x :current))]
+
          [:h4 "One off amounts in last month"]
-         (filter-donations processed-transactions
-                           (fn [x] (and (contains? (:freq x) :one-off)
-                                       (util/within-last-month-of analysis-date (:date x)))))
+         [report-donations
+          processed-transactions
+          (fn [x] (and (contains? (:freq x) :one-off)
+                      (util/within-last-month-of analysis-date (:date x))))]
+
          [:h4 "Expenditure in last month"]
-         [expenditure-report
+         [report-expenditure
           (:exp (state/state))
           (fn [x] (util/within-last-month-of analysis-date (:date x)))]
+
          [:h4 "Donor report"]
-         (donor-report)]
+         [report-donors]]
         [:div.col
          [graph-view/do-graph]]]
        ])))

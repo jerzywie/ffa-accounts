@@ -5,42 +5,52 @@
 
 (defn format-donor-amounts [amounts]
   (s/join ", "
-        (reduce (fn [v [count amount]]
-                  (conj v (str count " x " (util/tonumber amount "£")))) [] amounts)))
+          (reduce (fn [v [count amount]]
+                    (conj v (str count " x " (util/tonumber amount "£")))) [] amounts)))
 
 (defn get-donor-amount-total [amounts]
-  (reduce (fn [v [count amount]] (+ v (* count amount))) 0 amounts))
+  (reduce (fn [v [count amount]]
+            (+ v (* count amount))) 0 amounts))
 
 (defn add-up [map-list amount-key]
   (->> map-list (map amount-key) (reduce +)))
 
-(defn calc-grand-total [category-totals interval]
+(defn calc-grand-total
   "Calculate the grand total of donations per 'interval' where interval is
    one of the keys in multipliers."
+  [category-totals interval]
+
   (let [multipliers {:weekly 52 :monthly 12}
         one-offs #{:one-off :new-amount}]
     (if-let [divisor  (interval multipliers)]
       (->> category-totals
-           (map (fn [[freq total]] (* (freq multipliers) total)))
+           (map (fn [{:keys [name amount]}] (* (name multipliers) amount)))
            (apply +)
            (#(/ % divisor)))
       (if (contains? one-offs interval)
-        (interval category-totals)
+        (->> category-totals (filter #(= (:name %) interval)) first :amount)
         0))))
 
-(defn get-summary-donation-totals [txns]
-  (let [summ-map (->> txns
-                      (group-by :freq)
-                      (map (fn [[k v]] {(first k) (add-up v :in)}))
-                      (apply merge))]
-    (assoc summ-map
-           :weekly-grand-total (calc-grand-total summ-map :weekly)
-           :monthly-grand-total (calc-grand-total summ-map :monthly))))
+(defn get-summary-donation-totals
+  "Return a list of maps, one for each different category."
+  [txns]
+  (let [summ-donations (->> txns
+                            (group-by :freq)
+                            (map (fn [[k v]] {:name (first k)
+                                             :amount (add-up v :in)})))]
+    (conj summ-donations
+          {:name :weekly-grand-total
+           :amount (calc-grand-total summ-donations :weekly)}
+          {:name :monthly-grand-total
+           :amount (calc-grand-total summ-donations :monthly)})))
 
-(defn get-summary-expenditure-totals [txns]
+(defn get-summary-expenditure-totals
+  "Return a list of maps, one for each different category."
+  [txns]
   (let [summ-exp (->> txns
                       (group-by (partial :desc))
-                      (map (fn [[k v]] {k (add-up v :out)}))
-                      (apply merge))]
-    (assoc summ-exp
-           "Total expenditure for month" (apply + (vals summ-exp)))))
+                      (map (fn [[k v]] {:name k :amount (add-up v :out)})))]
+    (conj summ-exp
+          {:name "Total expenditure for month"
+           :amount (add-up summ-exp :amount)
+           :is-total? true})))

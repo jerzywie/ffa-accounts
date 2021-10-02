@@ -22,8 +22,11 @@
     (is (= (sut/add-up (conj map-list {:no-amt 1}) :amt) 35) "Maps without relevant key are ignored.")))
 
 (deftest calc-grand-total-tests
-  (let [category-totals {:weekly 10 :monthly 10}
-        cat-tots-with-one-offs (assoc category-totals  :one-off 80 :new-amount 99)]
+  (let [category-totals [{:name :weekly :amount 10}
+                         {:name :monthly :amount 10}]
+        cat-tots-with-one-offs (conj category-totals
+                                     {:name :one-off :amount 80}
+                                     {:name :new-amount :amount 99})]
     (is (= (util/tonumber (sut/calc-grand-total category-totals :weekly))
            (util/tonumber 12.31)))
     (is (= (util/tonumber (sut/calc-grand-total category-totals :monthly))
