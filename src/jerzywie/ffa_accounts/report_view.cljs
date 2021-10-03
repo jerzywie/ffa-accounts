@@ -84,11 +84,10 @@
     [:div
      [:h5 "Summary"]
      [:div.row.mb-3
-      [:div.col
-       (map (fn [{:keys [name amount]} id] ^{:key id}
-              [:div.col (str name ": " (util/tonumber amount "£"))])
-            summ-exp
-            (range))]]
+      (map (fn [{:keys [name amount]} id] ^{:key id}
+             [:div.col (str name ": " (util/tonumber amount "£"))])
+           summ-exp
+           (range))]
                                         ;[:div.col (with-out-str (pprint summ-exp))]
      [:div.row
       [:div.col
