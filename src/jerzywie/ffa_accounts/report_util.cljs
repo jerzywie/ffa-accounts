@@ -20,7 +20,7 @@
    one of the keys in multipliers."
   [category-totals interval]
 
-  (let [multipliers {:weekly 52 :monthly 12}
+  (let [multipliers {:weekly 52 :fortnightly 26 :monthly 12}
         one-offs #{:one-off :new-amount}]
     (if-let [divisor  (interval multipliers)]
       (->> category-totals
@@ -30,6 +30,11 @@
       (if (contains? one-offs interval)
         (->> category-totals (filter #(= (:name %) interval)) first :amount)
         0))))
+
+(defn calc-weekly-aggregate
+  "Calculate the aggregate weekly income given a month's worth of transactions."
+  [txns]
+  (-> txns (add-up :in) (* 12) (/ 52)))
 
 (defn get-summary-donation-totals
   "Return a list of maps, one for each different category."
@@ -42,7 +47,9 @@
           {:name :weekly-grand-total
            :amount (calc-grand-total summ-donations :weekly)}
           {:name :monthly-grand-total
-           :amount (calc-grand-total summ-donations :monthly)})))
+           :amount (calc-grand-total summ-donations :monthly)}
+          {:name :weekly-aggregate
+           :amount (calc-weekly-aggregate txns)})))
 
 (defn get-summary-expenditure-totals
   "Return a list of maps, one for each different category."

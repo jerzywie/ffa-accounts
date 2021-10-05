@@ -8,9 +8,12 @@
       (= days 7) :weekly
       (or (= days 6) (= days 8)) :approx-weekly
       (and (> days 27) (< days 32)) :monthly
+      (= days 14) :fortnightly
       :else :irregular)))
 
-(defn interval-analysis [date-etc txn]
+(defn interval-analysis
+  "Reduce-fn for analyse-time-intervals."
+  [date-etc txn]
   (let [date (:date date-etc)
         results (get date-etc :results [])
         next-date (:date txn)]
@@ -44,7 +47,8 @@
                                       donations-tranche)
           add-recency (fn [{:keys [date freq] :as txn}]
                         (let [day-diff (util/days-between date analysis-date)
-                              max-day-diff ((first freq) {:weekly 7 :monthly 31})]
+                              max-day-diff ((first freq)
+                                            {:weekly 7 :fortnightly 14 :monthly 31})]
                           (if (some #{day-diff} (range max-day-diff))
                             (assoc txn :current true)
                             txn)))

@@ -59,8 +59,16 @@
 (defn days-between [d1 d2]
   (.until d1 d2 (.. jt/ChronoUnit -DAYS)))
 
-(defn within-last-month-of [analysis-date test-date]
-  (let [prev-month (.minusMonths analysis-date 1)
+(defn within-last-month-of [reference-date test-date]
+  (let [prev-month (.minusMonths reference-date 1)
         is-before? (.isBefore test-date prev-month)
-        is-after? (.isAfter test-date analysis-date)]
+        is-after? (.isAfter test-date reference-date)]
     (not (or is-before? is-after?))))
+
+(defn last-date-in-month [date]
+  (-> date (.plusMonths 1) (.withDayOfMonth 1) (.minusDays 1)))
+
+
+(defn in-same-month-as [reference-date test-date]
+  (and (= (.year reference-date) (.year test-date))
+       (= (.monthValue reference-date) (.monthValue test-date))))

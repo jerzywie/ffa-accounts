@@ -9,10 +9,12 @@
    [clojure.string :refer [capitalize]]
    [clojure.pprint :refer [pprint]]))
 
-(def caption-map {:weekly "Weekly regulars"
-                  :monthly "Monthly regulars"
+(def caption-map {:weekly "Weekly SOs"
+                  :monthly "Monthly SOs"
+                  :fortnightly "Fortnightly SOs"
                   :weekly-grand-total "Net donations/week"
                   :monthly-grand-total "Net donations/month"
+                  :weekly-aggregate "Aggregate weekly income"
                   :new-amount "Grand total one-offs"
                   :one-off "Grand total one-offs"})
 
@@ -109,13 +111,26 @@
                [:td type]
                [:td.text-end (util/tonumber out)]]))]]))
 
+(defn txn-summary [income expenditure]
+  (let [tot-in (r-util/add-up income :in)
+        tot-out (r-util/add-up expenditure :out)]
+    [:div.row
+     [:div.col (str "Total in for month: " (util/tonumber tot-in "£"))]
+     [:div.col (str "Total out for month: " (util/tonumber tot-out "£"))]
+     [:div.col (str "Weekly aggregate income: " (-> income
+                                                    r-util/calc-weekly-aggregate
+                                                    (util/tonumber "£")))]]))
+
 (defn report [data analysis-date-or-nil]
   (when data
     (let [allocd-txns (:allocd-txns (state/state))
           date-first-txn (-> data :txns first :date)
           date-last-txn (-> data :txns last :date)
           analysis-date (or analysis-date-or-nil date-last-txn)
-          processed-transactions (anal/analyse-donations analysis-date allocd-txns)]
+          processed-transactions (anal/analyse-donations analysis-date allocd-txns)
+          last-months-txns (fn [x] (util/in-same-month-as analysis-date (:date x)))
+          income-in-month (filter last-months-txns processed-transactions)
+          expenditure-in-month (filter last-months-txns (:exp (state/state)))]
       (state/add-processed-transactions! processed-transactions)
       (state/add-analysis-date! analysis-date)
       [:div
@@ -133,7 +148,10 @@
           [:div.col-md-4 (str "First transaction: " date-first-txn)]
           [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
 
-         [:h4 "Regular donations in last month"]
+         [:h4 "Monthly summary"]
+         [txn-summary income-in-month expenditure-in-month]
+
+         [:h4 "Current regular donations"]
          [report-donations
           processed-transactions
           (fn [x] (contains? x :current))]
