@@ -47,9 +47,7 @@
           {:name :weekly-grand-total
            :amount (calc-grand-total summ-donations :weekly)}
           {:name :monthly-grand-total
-           :amount (calc-grand-total summ-donations :monthly)}
-          {:name :weekly-aggregate
-           :amount (calc-weekly-aggregate txns)})))
+           :amount (calc-grand-total summ-donations :monthly)})))
 
 (defn get-summary-expenditure-totals
   "Return a list of maps, one for each different category."

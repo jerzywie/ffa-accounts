@@ -160,12 +160,12 @@
          [report-donations
           processed-transactions
           (fn [x] (and (contains? (:freq x) :one-off)
-                      (util/within-last-month-of analysis-date (:date x))))]
+                      (util/in-same-month-as analysis-date (:date x))))]
 
          [:h4 "Expenditure in last month"]
          [report-expenditure
           (:exp (state/state))
-          (fn [x] (util/within-last-month-of analysis-date (:date x)))]
+          (fn [x] (util/in-same-month-as analysis-date (:date x)))]
 
          [:h4 "Donor report"]
          [report-donors]]]])))
