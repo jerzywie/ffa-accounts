@@ -3,7 +3,8 @@
             [java.time :as j]
             [java.time.temporal :as jt]
             [goog.string :as g]
-            [goog.string.format]))
+            [goog.string.format]
+            [goog.dom :as gdom]))
 
 (def month-names ["Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"])
 
@@ -72,3 +73,12 @@
 (defn in-same-month-as [reference-date test-date]
   (and (= (.year reference-date) (.year test-date))
        (= (.monthValue reference-date) (.monthValue test-date))))
+
+(defn date-now []
+  (. j/LocalDate now))
+
+(defn time-now []
+  (. j/LocalTime now))
+
+(defn get-element-by-id [id]
+  (gdom/getElement id))

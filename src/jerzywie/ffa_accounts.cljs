@@ -1,9 +1,9 @@
 (ns ^:figwheel-hooks jerzywie.ffa-accounts
   (:require
-   [goog.dom :as gdom]
    [reagent.dom :as rdom]
    [jerzywie.ffa-accounts.home-page :as home]
-   [jerzywie.ffa-accounts.state :as state]))
+   [jerzywie.ffa-accounts.state :as state]
+   [jerzywie.ffa-accounts.util :as util]))
 
 (defonce initialize
   (do
@@ -15,7 +15,7 @@
 (defn multiply [a b] (* a b))
 
 (defn get-app-element []
-  (gdom/getElement "app"))
+  (util/get-element-by-id "app"))
 
 (defn mount [el]
   (rdom/render [home/home-page] el))
@@ -31,4 +31,5 @@
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
   (mount-app-element)
-  (state/set-graph-data-changed!))
+  (state/set-graph-data-changed!)
+  (println "reload at " (str (util/time-now))))
