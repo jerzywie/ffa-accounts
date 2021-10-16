@@ -8,9 +8,10 @@
 (defn home-page []
   [:div.app.container
    [:div.row
-    [:header.d-flex.border-bottom.mb-3
-     [:img.img-fluid.me-3 {:src "./images/FFA-logo.jpg"}]
-     [:span.fs-2.mt-3 "FFA Accounts"]]]
+    [:header.d-flex.border-bottom.mb-3.mt-3
+     [:a.me-3 {:href "https://bcrcp.org.uk/ffa/" :target "_blank"}
+      [:img.img-fluid {:src "./images/FFA-logo.jpg" :alt "(FFA Logo)"}]]
+     [:span.fs-2 "FFA Accounts"]]]
    (let [{:keys [file-name analysis-date data]} (state/state)]
      [:div
       [:div.row.border-bottom.d-print-none
