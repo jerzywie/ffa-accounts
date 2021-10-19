@@ -19,7 +19,8 @@
                     (state/set-graph-data-changed!))}]]))
 
 
-(defonce month-picker-state (reagent/atom {:native "" :fallback "d-none"}))
+(defonce month-picker-state (reagent/atom {:native ""
+                                           :fallback "d-none"}))
 (defonce earliest-txn (util/md [2018 2 23]))
 (defonce month-names ["January"
                       "February"
@@ -64,7 +65,6 @@
            {:type "month"
             :value (do (apply str (take 7 (str analysis-date))))
             :on-change (fn [e]
-                         (prn "m-p " (.-target.value e))
                          (state/add-analysis-date!
                           (-> (.-target.value e)
                               (str "-01")
@@ -85,13 +85,17 @@
             {:value (nth month-names (if (some? analysis-date)
                                        (dec (.monthValue analysis-date))
                                        0))
-             :ref #(swap! month-picker-state assoc :month %)}
+             :ref #(swap! month-picker-state assoc :month %)
+             :on-change (fn [e]
+                          (swap! month-picker-state assoc :month-val (.-target.value e)))}
             (make-option-list month-names)]
            [:label.me-1.mb-4 {:for "fallback-year"} "year"]
            [:select#fallback-year.text-success
             {:value (if (some? analysis-date)
                       (str (.year analysis-date))
                       (str (.year earliest-txn)))
-             :ref #(swap! month-picker-state assoc :year %)}
+             :ref #(swap! month-picker-state assoc :year %)
+             :on-change (fn [e]
+                          (swap! month-picker-state assoc :year-val (.-target.value e)))}
             (make-year-option-list earliest-txn (util/date-now))]
            [:input {:type "submit" :value "Go"}]]]]))}))
