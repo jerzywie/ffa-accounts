@@ -76,10 +76,10 @@
     (loop [month last-month
            result []]
       (let [month-filter       (fn [x] (util/in-same-month-as month (:date x)))
-            freqq-filter       (fn [comp-fn x] (comp-fn (:freqq x) :regular))
+            freq-filter       (fn [comp-fn x] (comp-fn (:freq x) :regular))
             income-this-month  (filter month-filter income)
-            regular-income     (filter (partial freqq-filter =) income-this-month)
-            non-regular-income (filter (partial freqq-filter not=) income-this-month)
+            regular-income     (filter (partial freq-filter =) income-this-month)
+            non-regular-income (filter (partial freq-filter not=) income-this-month)
             expend-this-month  (filter month-filter expend)
             tot-inc            (add-up income-this-month :in)
             reg-inc            (add-up regular-income :in)

@@ -10,29 +10,29 @@
 
 (deftest deduce-period-tests
   (are [d1 d2 result] (= (sut/deduce-period (md d1) (md d2)) result)
-    [2021  8  3] [2021  8 10] {:period :weekly :freqq :regular}
-    [2021  1 15] [2021  2 15] {:period :monthly :freqq :regular}
-    [2021  2 15] [2021  3 15] {:period :monthly :freqq :regular}
-    [2021  4 15] [2021  5 15] {:period :monthly :freqq :regular}
-    [2020  2 15] [2020  3 15] {:period :monthly :freqq :regular}
-    [2021  8 29] [2021  9  5] {:period :weekly :freqq :regular}
-    [2021  8  3] [2021  8  9] {:period :approx-weekly :freqq :regular}
-    [2021  8  3] [2021  8 11] {:period :approx-weekly :freqq :regular}
-    [2021  8  3] [2021  8  8] {:period :none :freqq :irregular}
-    [2021  8  3] [2021  8 12] {:period :none :freqq :irregular}))
+    [2021  8  3] [2021  8 10] {:period :weekly :freq :regular}
+    [2021  1 15] [2021  2 15] {:period :monthly :freq :regular}
+    [2021  2 15] [2021  3 15] {:period :monthly :freq :regular}
+    [2021  4 15] [2021  5 15] {:period :monthly :freq :regular}
+    [2020  2 15] [2020  3 15] {:period :monthly :freq :regular}
+    [2021  8 29] [2021  9  5] {:period :weekly :freq :regular}
+    [2021  8  3] [2021  8  9] {:period :approx-weekly :freq :regular}
+    [2021  8  3] [2021  8 11] {:period :approx-weekly :freq :regular}
+    [2021  8  3] [2021  8  8] {:period :none :freq :irregular}
+    [2021  8  3] [2021  8 12] {:period :none :freq :irregular}))
 
-(def weekly-first-sept [{:date (md  [2021 8 25])  :period :weekly :freqq :regular :new true}
-                        {:date (md  [2021 9  1])  :period :weekly :freqq :regular}])
+(def weekly-first-sept [{:date (md  [2021 8 25])  :period :weekly :freq :regular :new true}
+                        {:date (md  [2021 9  1])  :period :weekly :freq :regular}])
 
-(def monthly-first-sept [{:date (md [2021 8  1])  :period :monthly :freqq :regular :new true}
-                         {:date (md [2021 9  1])  :period :monthly :freqq :regular}])
+(def monthly-first-sept [{:date (md [2021 8  1])  :period :monthly :freq :regular :new true}
+                         {:date (md [2021 9  1])  :period :monthly :freq :regular}])
 
-(def august-weekly-txns [{:date (md [2021 7 25])  :period :weekly :freqq :regular :new true}
-                         {:date (md [2021 8  1])  :period :weekly :freqq :regular}
-                         {:date (md [2021 8  8])  :period :weekly :freqq :regular}
-                         {:date (md [2021 8 15])  :period :weekly :freqq :regular}
-                         {:date (md [2021 8 22])  :period :weekly :freqq :regular}
-                         {:date (md [2021 8 29])  :period :weekly :freqq :regular}])
+(def august-weekly-txns [{:date (md [2021 7 25])  :period :weekly :freq :regular :new true}
+                         {:date (md [2021 8  1])  :period :weekly :freq :regular}
+                         {:date (md [2021 8  8])  :period :weekly :freq :regular}
+                         {:date (md [2021 8 15])  :period :weekly :freq :regular}
+                         {:date (md [2021 8 22])  :period :weekly :freq :regular}
+                         {:date (md [2021 8 29])  :period :weekly :freq :regular}])
 
 (defn current? [x] (contains? x :current))
 

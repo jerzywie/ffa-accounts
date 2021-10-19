@@ -5,11 +5,11 @@
 (defn deduce-period [d1 d2]
   (let [days (util/days-between d1 d2)]
     (cond
-      (= days 7)                    {:period :weekly        :freqq :regular}
-      (or (= days 6) (= days 8))    {:period :approx-weekly :freqq :regular}
-      (= days 14)                   {:period :fortnightly   :freqq :regular}
-      (and (> days 27) (< days 32)) {:period :monthly       :freqq :regular}
-     :else                          {:period :none          :freqq :irregular})))
+      (= days 7)                    {:period :weekly        :freq :regular}
+      (or (= days 6) (= days 8))    {:period :approx-weekly :freq :regular}
+      (= days 14)                   {:period :fortnightly   :freq :regular}
+      (and (> days 27) (< days 32)) {:period :monthly       :freq :regular}
+     :else                          {:period :none          :freq :irregular})))
 
 (defn interval-analysis
   "Reduce-fn for analyse-time-intervals."
@@ -39,10 +39,10 @@
         donor-tranches (map (fn [amount] (analyse-time-intervals txns amount)) amount-cache)]
     (map (fn [donations-tranche]
            (if (= 1 (count donations-tranche))
-             (list (assoc (first donations-tranche) :period :none :freqq  :one-off))
+             (list (assoc (first donations-tranche) :period :none :freq  :one-off))
              (let [period (-> donations-tranche second :period)
-                   freqq  (-> donations-tranche second :freqq)]
-               (conj (rest donations-tranche) (assoc (first donations-tranche) :period period :freqq freqq)))))
+                   freq  (-> donations-tranche second :freq)]
+               (conj (rest donations-tranche) (assoc (first donations-tranche) :period period :freq freq)))))
          donor-tranches)))
 
 (defn analyse-recency [analysis-date donations-tranche]

@@ -210,7 +210,7 @@
          [:h4 "One off amounts in last month"]
          [report-donations
           processed-transactions
-          (fn [x] (and (not= (:freqq x) :regular)
+          (fn [x] (and (not= (:freq x) :regular)
                       (util/in-same-month-as analysis-date (:date x))))]
 
          [:h4 "Expenditure in last month"]
