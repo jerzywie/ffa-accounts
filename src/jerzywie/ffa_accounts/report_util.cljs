@@ -69,3 +69,28 @@
        (filter identity)
        (#(conj % ["Name" "Amount"]))
        (into [])))
+
+(defn monthly-txn-summary [income expend date-first-txn date-last-txn]
+  (let [first-month (-> date-first-txn (.withDayOfMonth 1))
+        last-month  (-> date-last-txn (.withDayOfMonth 1))]
+    (loop [month last-month
+           result []]
+      (let [month-filter       (fn [x] (util/in-same-month-as month (:date x)))
+            freqq-filter       (fn [comp-fn x] (comp-fn (:freqq x) :regular))
+            income-this-month  (filter month-filter income)
+            regular-income     (filter (partial freqq-filter =) income-this-month)
+            non-regular-income (filter (partial freqq-filter not=) income-this-month)
+            expend-this-month  (filter month-filter expend)
+            tot-inc            (add-up income-this-month :in)
+            reg-inc            (add-up regular-income :in)
+            non-reg-inc        (add-up non-regular-income :in)
+            tot-exp            (add-up expend-this-month :out)
+            summary-this-month {:month month
+                                :income tot-inc
+                                :reg-inc reg-inc
+                                :non-reg-inc non-reg-inc
+                                :expend tot-exp}]
+        (if (util/in-same-month-as first-month month)
+          (conj result summary-this-month)
+          (recur (.minusMonths month 1)
+                 (conj result summary-this-month)))))))

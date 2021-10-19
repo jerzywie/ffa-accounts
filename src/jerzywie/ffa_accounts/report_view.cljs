@@ -123,6 +123,55 @@
                                                     r-util/calc-weekly-aggregate
                                                     (util/tonumber "£")))]]))
 
+(defn monthly-txn-summary-view [income expend date-first-txn date-last-txn]
+  (let [txn-summary (r-util/monthly-txn-summary income expend date-first-txn date-last-txn)]
+    [:table.table.table-striped
+     [:thead
+      [:tr
+       [:th "Month"]
+       [:th.text-end "Donations"]
+       [:th.text-end "Regular"]
+       [:th.text-end "Occasional/One-Off"]
+       [:th.text-end "Expenditure"]
+       [:th.text-end "Inc - Exp"]]]
+     (into [:tbody]
+           (for [{:keys [month income reg-inc non-reg-inc expend]} txn-summary]
+             [:tr
+              [:td (apply str (take 7 (str month)))]
+              [:td.text-end (util/tonumber income)]
+              [:td.text-end (util/tonumber reg-inc)]
+              [:td.text-end (util/tonumber non-reg-inc)]
+              [:td.text-end (util/tonumber expend)]
+              [:td.text-end (util/tonumber (- income expend))]]))]))
+
+(defn new-report [data analysis-date-or-nil]
+  (when data
+    (let [allocd-txns (:allocd-txns (state/state))
+          expend (:exp (state/state))
+          date-first-txn (-> data :txns first :date)
+          date-last-txn (-> data :txns last :date)
+          analysis-date (or analysis-date-or-nil date-last-txn)
+          processed-transactions (anal/analyse-donations analysis-date allocd-txns)]
+      [:div
+       [:div.row
+        [:div.col
+         [:h4 "Account summary"]
+         [:div.row
+          (map (fn [[k v] id] ^{:key id}
+                 [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
+               (:accinfo data)
+               (range))]
+         [:div.row
+          [:div.col-md-4]
+          [:div.col-md-4 (str "First transaction: " date-first-txn)]
+          [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
+
+         [:h4 "Monthly summary"]
+         [:div [monthly-txn-summary-view processed-transactions
+                expend
+                date-first-txn
+                date-last-txn]]]]])))
+
 (defn report [data analysis-date-or-nil]
   (when data
     (let [allocd-txns (:allocd-txns (state/state))

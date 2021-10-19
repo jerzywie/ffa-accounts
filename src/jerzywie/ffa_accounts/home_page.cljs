@@ -18,9 +18,9 @@
        [:div.mb-3.col
         [fup/upload-btn file-name]]
        [:div.mb-3.col
-        [d-p/date-picker]]
-       [:div.mb-3.col
         [d-p/month-picker-adaptive]]]
+      [:div.mb-3 (report/new-report data analysis-date)]
+      [:hr]
       [:div.mb-3 (report/report data analysis-date)]
       [state/debug-app-state]]
  )])
