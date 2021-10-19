@@ -15,9 +15,11 @@
       (util/strip-last-char-if "&")
       s/trim))
 
-(defn make-group [name desc-less-prefix]
+(defn make-group
   "If the name and description are the same, then group is nil
-   If they are different, then try for a group id by extracting account details"
+   If they are different, then try for a group id by
+   extracting account details."
+  [name desc-less-prefix]
   (let [maybe-group (if (not= name desc-less-prefix) desc-less-prefix nil)]
     (if (some? maybe-group)
       (re-find #"\d{6} \d{8}" maybe-group)

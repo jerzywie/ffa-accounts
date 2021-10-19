@@ -23,15 +23,16 @@
         summ-donations (r-util/get-summary-donation-totals filtered-txns)]
     [:div
      [:h5 "Summary"]
+     [:div.col (with-out-str (pprint summ-donations))]
      [:div.row.mb-3
-      (map (fn [{:keys [name amount]} id]
-             (when (> amount 0)
-               ^{:key id}
-               [:div.col
-                (str (name caption-map) ": " (util/tonumber amount "£"))]))
-           summ-donations
-           (range))]
-     ;[:div.col (with-out-str (pprint summ-donations))]
+      ;(map (fn [{:keys [name amount]} id]
+       ;      (when (> amount 0)
+        ;       ^{:key id}
+         ;      [:div.col
+          ;      (str (name caption-map) ": " (util/tonumber amount "£"))]))
+           ;summ-donations
+           ;(range))
+      ]
 
      [:h5 "Detail"]
      [:table.table.table-striped
@@ -42,12 +43,13 @@
         [:th "Frequency"]
         [:th "Last paid"]]]
       (into [:tbody]
-            (let [format-freq (fn [f-set] (-> f-set first name capitalize))]
-              (for [{:keys [freq date account-name in]} filtered-txns]
+            (let [format-period (fn [period] period ;(-> period name capitalize)
+                                  )]
+              (for [{:keys [period date account-name in]} filtered-txns]
                 [:tr
                  [:td account-name]
                  [:td.text-end (util/tonumber in)]
-                 [:td (format-freq freq)]
+                 [:td (format-period period)]
                  [:td (str date)]])))]]))
 
 (defn report-donors []
@@ -159,7 +161,7 @@
          [:h4 "One off amounts in last month"]
          [report-donations
           processed-transactions
-          (fn [x] (and (contains? (:freq x) :one-off)
+          (fn [x] (and (not= (:freqq x) :regular)
                       (util/in-same-month-as analysis-date (:date x))))]
 
          [:h4 "Expenditure in last month"]

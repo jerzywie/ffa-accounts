@@ -40,14 +40,16 @@
   "Return a list of maps, one for each different category."
   [txns]
   (let [summ-donations (->> txns
-                            (group-by :freq)
-                            (map (fn [[k v]] {:name (first k)
+                            (group-by :period)
+                            (map (fn [[k v]] {:name k
                                              :amount (add-up v :in)})))]
-    (conj summ-donations
-          {:name :weekly-grand-total
-           :amount (calc-grand-total summ-donations :weekly)}
-          {:name :monthly-grand-total
-           :amount (calc-grand-total summ-donations :monthly)})))
+    summ-donations
+;    (conj summ-donations
+;          {:name :weekly-grand-total
+;           :amount (calc-grand-total summ-donations :weekly)}
+;          {:name :monthly-grand-total
+;    :amount (calc-grand-total summ-donations :monthly)})
+))
 
 (defn get-summary-expenditure-totals
   "Return a list of maps, one for each different category."

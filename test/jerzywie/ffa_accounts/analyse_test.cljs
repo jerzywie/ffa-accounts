@@ -10,29 +10,29 @@
 
 (deftest deduce-period-tests
   (are [d1 d2 result] (= (sut/deduce-period (md d1) (md d2)) result)
-    [2021  8  3] [2021  8 10] :weekly
-    [2021  1 15] [2021  2 15] :monthly
-    [2021  2 15] [2021  3 15] :monthly
-    [2021  4 15] [2021  5 15] :monthly
-    [2020  2 15] [2020  3 15] :monthly
-    [2021  8 29] [2021  9  5] :weekly
-    [2021  8  3] [2021  8  9] :approx-weekly
-    [2021  8  3] [2021  8 11] :approx-weekly
-    [2021  8  3] [2021  8  8] :irregular
-    [2021  8  3] [2021  8 12] :irregular))
+    [2021  8  3] [2021  8 10] {:period :weekly :freqq :regular}
+    [2021  1 15] [2021  2 15] {:period :monthly :freqq :regular}
+    [2021  2 15] [2021  3 15] {:period :monthly :freqq :regular}
+    [2021  4 15] [2021  5 15] {:period :monthly :freqq :regular}
+    [2020  2 15] [2020  3 15] {:period :monthly :freqq :regular}
+    [2021  8 29] [2021  9  5] {:period :weekly :freqq :regular}
+    [2021  8  3] [2021  8  9] {:period :approx-weekly :freqq :regular}
+    [2021  8  3] [2021  8 11] {:period :approx-weekly :freqq :regular}
+    [2021  8  3] [2021  8  8] {:period :none :freqq :irregular}
+    [2021  8  3] [2021  8 12] {:period :none :freqq :irregular}))
 
-(def weekly-first-sept [{:date (md [2021 8 25]) :freq #{:new-amount}}
-                        {:date (md [2021 9 1])  :freq #{:weekly}}])
+(def weekly-first-sept [{:date (md  [2021 8 25])  :period :weekly :freqq :regular :new true}
+                        {:date (md  [2021 9  1])  :period :weekly :freqq :regular}])
 
-(def monthly-first-sept [{:date (md [2021 8 1]) :freq #{:new-amount}}
-                         {:date (md [2021 9 1]) :freq #{:monthly}}])
+(def monthly-first-sept [{:date (md [2021 8  1])  :period :monthly :freqq :regular :new true}
+                         {:date (md [2021 9  1])  :period :monthly :freqq :regular}])
 
-(def august-weekly-txns [{:date (md [2021 7 25]) :freq #{:new-amount}}
-                         {:date (md [2021 8 1])  :freq #{:weekly}}
-                         {:date (md [2021 8 8])  :freq #{:weekly}}
-                         {:date (md [2021 8 15]) :freq #{:weekly}}
-                         {:date (md [2021 8 22]) :freq #{:weekly}}
-                         {:date (md [2021 8 29]) :freq #{:weekly}}])
+(def august-weekly-txns [{:date (md [2021 7 25])  :period :weekly :freqq :regular :new true}
+                         {:date (md [2021 8  1])  :period :weekly :freqq :regular}
+                         {:date (md [2021 8  8])  :period :weekly :freqq :regular}
+                         {:date (md [2021 8 15])  :period :weekly :freqq :regular}
+                         {:date (md [2021 8 22])  :period :weekly :freqq :regular}
+                         {:date (md [2021 8 29])  :period :weekly :freqq :regular}])
 
 (defn current? [x] (contains? x :current))
 
@@ -48,29 +48,31 @@
                (= (count current) 1))
           ; check that no elements are marked with :current
           (= (count current) 0)))
-    weekly-first-sept  [2021  9  7] true  [2021 9 1]
-    weekly-first-sept  [2021  9  8] false nil
-    weekly-first-sept  [2021  9  5] true  [2021 9 1]
-    weekly-first-sept  [2021  9 10] false nil
-    weekly-first-sept  [2021  8 31] false nil
-    weekly-first-sept  [2021  9  1] true  [2021 9 1]
-    monthly-first-sept [2021  9 10] true  [2021 9 1]
-    monthly-first-sept [2021 10  1] true  [2021 9 1]
-    monthly-first-sept [2021 10  2] false nil
-    monthly-first-sept [2021  8 31] false nil
-    monthly-first-sept [2021  9  1] true  [2021 9 1]
+    weekly-first-sept  [2021  9  7] true  [2021 9  1]
+    weekly-first-sept  [2021  9  8] false      nil
+    weekly-first-sept  [2021  9  5] true  [2021 9  1]
+    weekly-first-sept  [2021  9 10] false      nil
+    weekly-first-sept  [2021  8 31] true  [2021 8 25]
+    weekly-first-sept  [2021  9  1] true  [2021 9  1]
+    monthly-first-sept [2021  9 10] true  [2021 9  1]
+    monthly-first-sept [2021 10  1] true  [2021 9  1]
+    monthly-first-sept [2021 10  2] false      nil
+    monthly-first-sept [2021  8 31] true  [2021 8  1]
+    monthly-first-sept [2021  7 31] false      nil
+    monthly-first-sept [2021  9  1] true  [2021 9  1]
     august-weekly-txns [2021  8 29] true  [2021 8 29]
     august-weekly-txns [2021  8 22] true  [2021 8 22]
     august-weekly-txns [2021  8 15] true  [2021 8 15]
     august-weekly-txns [2021  8 16] true  [2021 8 15]
     august-weekly-txns [2021  8  8] true  [2021 8  8]
     august-weekly-txns [2021  8  1] true  [2021 8  1]
-    august-weekly-txns [2021  7 31] false nil
+    august-weekly-txns [2021  7 31] true  [2021 7 25]
+    august-weekly-txns [2021  7 24] false      nil
     ))
 
 (deftest analyse-recency-tests-one-offs
-  (is (contains?
+  (is (= 1
        (->
         (first (sut/analyse-recency nil [{:freq #{:new-amount}}]))
-        :freq)
-       :one-off)))
+        :freq
+        count))))
