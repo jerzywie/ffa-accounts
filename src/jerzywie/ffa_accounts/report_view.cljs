@@ -132,13 +132,11 @@
        [:th             {:rowspan 2} "Month"]
        [:th.text-center {:colspan 3} "Income (Donations)"]
        [:th.text-end    {:rowspan 2} "Expenditure"]
-       [:th.text-end    {:rowspan 2} "Inc - Exp"]
-]
+       [:th.text-end    {:rowspan 2} "Income over Expenditure"]]
       [:tr
        [:th.text-end "Regular"]
        [:th.text-end "Occasional/One-Off"]
-       [:th.text-end "Total"]
-       ]]
+       [:th.text-end "Total"]]]
      (into [:tbody]
            (for [{:keys [month income reg-inc non-reg-inc expend]} txn-summary]
              [:tr
