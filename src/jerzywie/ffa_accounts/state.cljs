@@ -51,7 +51,9 @@
       [:pre.tiny-words
        [:div.mb-3.d-print-none
         [:h5 "debug app state"]
-        [:div (with-out-str (pprint (assoc (dissoc state :data :processed-txns :allocd-txns :exp) :data-state  (if (:data state) "Data exists." "No data."))))]
+        [:div (with-out-str (pprint (assoc
+                                     (dissoc state :data :processed-txns :allocd-txns :exp)
+                                     :data-state  (if (:data state) "Data exists." "No data."))))]
         [:h6.mt-3 "Processed-txns ('type' and 'desc' omitted)"]
         [:table.table.table-sm.table-striped
          [:thead
@@ -66,7 +68,8 @@
            [:th {:scope "col"} "new?"]
            [:th {:scope "col"} "current?"]]]
          (into [:tbody]
-               (for [{:keys [date in name group account-name period freq new current]} (:processed-txns state)]
+               (for [{:keys [date in name group account-name period freq new current]}
+                     (:processed-txns state)]
                  [:tr.tiny-words
                   [:td (str date)]
                   [:td.text-right in]
