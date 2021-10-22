@@ -23,7 +23,8 @@
         summ-donations (r-util/get-summary-donation-totals filtered-txns)]
     [:div
      [:h5 "Summary"]
-     [:div.col (with-out-str (pprint summ-donations))]
+     [:div.row (with-out-str (pprint (map (fn [txn] (dissoc txn :desc :name :type :group)) filtered-txns)))]
+     [:div.row (with-out-str (pprint summ-donations))]
      [:div.row.mb-3
       ;(map (fn [{:keys [name amount]} id]
        ;      (when (> amount 0)
@@ -126,21 +127,25 @@
 (defn monthly-txn-summary-view [income expend date-first-txn date-last-txn]
   (let [txn-summary (r-util/monthly-txn-summary income expend date-first-txn date-last-txn)]
     [:table.table.table-striped
-     [:thead
+     [:thead.black-border-bottom
       [:tr
-       [:th "Month"]
-       [:th.text-end "Donations"]
+       [:th             {:rowspan 2} "Month"]
+       [:th.text-center {:colspan 3} "Income (Donations)"]
+       [:th.text-end    {:rowspan 2} "Expenditure"]
+       [:th.text-end    {:rowspan 2} "Inc - Exp"]
+]
+      [:tr
        [:th.text-end "Regular"]
        [:th.text-end "Occasional/One-Off"]
-       [:th.text-end "Expenditure"]
-       [:th.text-end "Inc - Exp"]]]
+       [:th.text-end "Total"]
+       ]]
      (into [:tbody]
            (for [{:keys [month income reg-inc non-reg-inc expend]} txn-summary]
              [:tr
               [:td (apply str (take 7 (str month)))]
-              [:td.text-end (util/tonumber income)]
               [:td.text-end (util/tonumber reg-inc)]
               [:td.text-end (util/tonumber non-reg-inc)]
+              [:td.text-end (util/tonumber income)]
               [:td.text-end (util/tonumber expend)]
               [:td.text-end (util/tonumber (- income expend))]]))]))
 
