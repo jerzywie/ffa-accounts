@@ -33,8 +33,8 @@
 
 (defn calc-weekly-aggregate
   "Calculate the aggregate weekly income given a month's worth of transactions."
-  [txns]
-  (-> txns (add-up :in) (* 12) (/ 52)))
+  [months-txns]
+  (-> months-txns (add-up :in) (* 12) (/ 52)))
 
 (defn get-summary-donation-totals
   "Return a list of maps, one for each different category."
@@ -94,3 +94,9 @@
           (conj result summary-this-month)
           (recur (.minusMonths month 1)
                  (conj result summary-this-month)))))))
+
+(defn monthly-statement [income expend month-end]
+  (let [month-filter       (fn [x] (util/in-same-month-as month-end (:date x)))
+        income-this-month  (filter month-filter income)
+        expend-this-month  (filter month-filter expend)]
+    (sort-by :date (concat income-this-month expend-this-month))))

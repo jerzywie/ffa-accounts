@@ -6,6 +6,7 @@
    [jerzywie.ffa-accounts.cache :as cache]
    [jerzywie.ffa-accounts.state :as state]
    [jerzywie.ffa-accounts.graph-view :as graph-view]
+   [jerzywie.ffa-accounts.date-picker :as d-p]
    [clojure.string :refer [capitalize]]
    [clojure.pprint :refer [pprint]]))
 
@@ -129,10 +130,10 @@
     [:table.table.table-striped
      [:thead.black-border-bottom
       [:tr
-       [:th             {:rowspan 2} "Month"]
-       [:th.text-center {:colspan 3} "Income (Donations)"]
-       [:th.text-end    {:rowspan 2} "Expenditure"]
-       [:th.text-end    {:rowspan 2} "Income over Expenditure"]]
+       [:th             {:rowSpan 2} "Month"]
+       [:th.text-center {:colSpan 3} "Income (Donations)"]
+       [:th.text-end    {:rowSpan 2} "Expenditure"]
+       [:th.text-end    {:rowSpan 2} "Income over Expenditure"]]
       [:tr
        [:th.text-end "Regular"]
        [:th.text-end "Occasional/One-Off"]
@@ -147,6 +148,36 @@
               [:td.text-end (util/tonumber expend)]
               [:td.text-end (util/tonumber (- income expend))]]))]))
 
+(defn monthly-statement-view [income expend month-end]
+  (let [months-txns (r-util/monthly-statement income expend month-end)]
+    [:div
+     [:table.table.table-striped
+      [:thead
+       [:tr
+        [:th "Date"]
+        [:th "Type"]
+        [:th "Name"]
+        [:th "Money in"]
+        [:th "Money Out"]
+        [:th "Balance"]]]
+      (into [:tbody]
+            (map (fn [{:keys [date type period freq desc account-name in out bal]}]
+                   (let [fmt-income-type (fn []
+                                           (-> (if (= period :none)
+                                                 freq
+                                                 period)
+                                               ))
+                         vary-in-out (fn [in-text out-text] (if (nil? in)
+                                                             out-text
+                                                             in-text))]
+                     [:tr
+                      [:td (str date)]
+                      [:td (vary-in-out (fmt-income-type) type)]
+                      [:td (vary-in-out account-name desc)]
+                      [:td (util/tonumber in)]
+                      [:td (util/tonumber out)]
+                      [:td (util/tonumber bal)]])) months-txns))]]))
+
 (defn new-report [data analysis-date-or-nil]
   (when data
     (let [allocd-txns (:allocd-txns (state/state))
@@ -155,6 +186,9 @@
           date-last-txn (-> data :txns last :date)
           analysis-date (or analysis-date-or-nil date-last-txn)
           processed-transactions (anal/analyse-donations analysis-date allocd-txns)]
+      (state/add-processed-transactions! processed-transactions)
+      (state/add-analysis-date! analysis-date)
+      (when-not analysis-date-or-nil (state/add-stuff! :statement-month analysis-date))
       [:div
        [:div.row
         [:div.col
@@ -173,7 +207,16 @@
          [:div [monthly-txn-summary-view processed-transactions
                 expend
                 date-first-txn
-                date-last-txn]]]]])))
+                date-last-txn]]
+         [:div.row.row-cols-2
+          [:div.col
+           [:h4 "Monthly statement"]]
+          [:div.col
+           [d-p/month-picker-adaptive nil :statement-month]]]
+         [:div [monthly-statement-view processed-transactions
+                expend
+                (:statement-month (state/state))]]
+         ]]])))
 
 (defn report [data analysis-date-or-nil]
   (when data

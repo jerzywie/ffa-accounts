@@ -44,7 +44,10 @@
 (defn make-option-list [names-list]
   (map (fn [n] ^{:key n}[:option n]) names-list))
 
-(defn month-picker-adaptive []
+(defn month-picker-adaptive
+  "Adaptive month-picker with fallback for browsers that don't support
+   <input type='month'/>. Chosen value is saved to state under 'key'."
+  [caption key]
   (reagent/create-class
    {:display-name "adaptive-month-picker"
 
@@ -57,15 +60,16 @@
 
     :reagent-render
     (fn []
-      (let [{:keys [analysis-date]} (state/state)]
+      (let [date-value (get (state/state) key)]
         [:span.text-success
          [:div#native-month-picker {:class (:native @month-picker-state)}
-          [:label.me-1 {:for "month-picker"} "Choose analysis month"]
+          [:label.me-1 {:for "month-picker"} caption]
           [:input#month-picker.text-success
            {:type "month"
-            :value (do (apply str (take 7 (str analysis-date))))
+            :value (do (apply str (take 7 (str date-value))))
             :on-change (fn [e]
-                         (state/add-analysis-date!
+                         (state/add-stuff!
+                          key
                           (-> (.-target.value e)
                               (str "-01")
                               util/parse-iso-date-string
@@ -74,7 +78,8 @@
          [:div#fallback-month-picker {:class (:fallback @month-picker-state)}
           [:form {:on-submit (fn [e]
                                (.preventDefault e)
-                               (state/add-analysis-date!
+                               (state/add-stuff!
+                                key
                                 (->  [(.-value (:year @month-picker-state))
                                       (inc (.-selectedIndex (:month @month-picker-state)))
                                       1]
@@ -82,8 +87,8 @@
                                      util/last-date-in-month)))}
            [:label.me-1 {:for "fallback-month"} "Choose analysis month"]
            [:select#fallback-month.text-success
-            {:value (nth month-names (if (some? analysis-date)
-                                       (dec (.monthValue analysis-date))
+            {:value (nth month-names (if (some? date-value)
+                                       (dec (.monthValue date-value))
                                        0))
              :ref #(swap! month-picker-state assoc :month %)
              :on-change (fn [e]
@@ -91,8 +96,8 @@
             (make-option-list month-names)]
            [:label.me-1.mb-4 {:for "fallback-year"} "year"]
            [:select#fallback-year.text-success
-            {:value (if (some? analysis-date)
-                      (str (.year analysis-date))
+            {:value (if (some? date-value)
+                      (str (.year date-value))
                       (str (.year earliest-txn)))
              :ref #(swap! month-picker-state assoc :year %)
              :on-change (fn [e]
