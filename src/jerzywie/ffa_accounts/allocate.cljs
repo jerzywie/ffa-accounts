@@ -59,7 +59,7 @@
   (nc/empty-cache)
   (let [raw-in-txns (filter #(nil? (:out %)) transactions)
         in-txns (map (fn [t] (let [ng (process-name t)]
-                              (-> t (dissoc :out :bal)
+                              (-> t (dissoc :out)
                                   (assoc :name (:name ng) :group (:group ng)))))
                      raw-in-txns)]
     (doall (map cache-name in-txns))

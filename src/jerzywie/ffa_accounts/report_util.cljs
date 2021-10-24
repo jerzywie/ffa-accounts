@@ -99,4 +99,4 @@
   (let [month-filter       (fn [x] (util/in-same-month-as month-end (:date x)))
         income-this-month  (filter month-filter income)
         expend-this-month  (filter month-filter expend)]
-    (sort-by :date (concat income-this-month expend-this-month))))
+    (sort-by :seqno (concat income-this-month expend-this-month))))

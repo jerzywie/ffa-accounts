@@ -38,13 +38,14 @@
   (let [header-maps (map make-header-line-map header-lines [false true true])]
     (apply merge header-maps)))
 
-(defn format-transaction [{:keys [date type desc out in bal]}]
+(defn format-transaction [{:keys [date type desc out in bal]} seqno]
   {:date (u/convert-txn-date-string date)
    :type type
    :desc desc
    :out (format-amount out)
    :in (format-amount in)
-   :bal (format-amount bal)})
+   :bal (format-amount bal)
+   :seqno seqno})
 
 (defn transform-raw-data [raw-data]
   (let [acc-info (process-header-lines (take 3 raw-data))
@@ -52,6 +53,4 @@
         txn-headers (keywordise-transaction-headers (first transactions))
         txn-map (map #(zipmap txn-headers %) (rest transactions))]
     {:accinfo acc-info
-     :txns (map #(format-transaction %) txn-map)}))
-
-
+     :txns (map (fn [txn seqno] (format-transaction txn seqno)) txn-map (drop 1 (range)))}))

@@ -33,6 +33,6 @@
 (deftest format-transaction-tests
   (testing "format-transaction handles transformations correctly."
     (let [raw-transaction {:date "12 May 2021", :type "Bank credit Billy Holiday", :desc "Bank credit Billy Holiday", :out "", :in "�100.00", :bal "�640.56"}
-          fmt-transaction (sut/format-transaction raw-transaction)
-          expected {:date (util/md [2021 05 12]) :type "Bank credit Billy Holiday", :desc "Bank credit Billy Holiday", :out nil, :in 100.00, :bal 640.56}]
+          fmt-transaction (sut/format-transaction raw-transaction 42)
+          expected {:date (util/md [2021 05 12]) :type "Bank credit Billy Holiday", :desc "Bank credit Billy Holiday", :out nil, :in 100.00, :bal 640.56 :seqno 42}]
       (is (= fmt-transaction expected)))))

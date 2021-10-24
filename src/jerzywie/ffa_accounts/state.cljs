@@ -66,9 +66,10 @@
            [:th {:scope "col"} "period"]
            [:th {:scope "col"} "freq"]
            [:th {:scope "col"} "new?"]
-           [:th {:scope "col"} "current?"]]]
+           [:th {:scope "col"} "current?"]
+           [:th {:scope "col"} "seqno"]]]
          (into [:tbody]
-               (for [{:keys [date in name group account-name period freq new current]}
+               (for [{:keys [date in name group account-name period freq new current seqno]}
                      (:processed-txns state)]
                  [:tr.tiny-words
                   [:td (str date)]
@@ -79,7 +80,8 @@
                   [:td period]
                   [:td freq]
                   [:td (when new "new!")]
-                  [:td (when current "current")]]))]
+                  [:td (when current "current")]
+                  [:td seqno]]))]
         [:h6.mt3 ":allocd-txns"]
         [:div (with-out-str (pprint (:allocd-txns state)))]
         [:h6.mt3 ":exp"]
