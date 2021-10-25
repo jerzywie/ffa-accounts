@@ -7,7 +7,7 @@
 
 (defonce initialize
   (do
-    (js/google.charts.load (clj->js {:packages ["corechart"]}))
+    (js/google.charts.load "current" (clj->js {:packages ["corechart"]}))
     (js/google.charts.setOnLoadCallback
      (fn google-visualization-loaded []
        (state/set-charts-ready!)))))
