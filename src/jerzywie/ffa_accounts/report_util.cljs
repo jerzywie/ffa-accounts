@@ -95,6 +95,14 @@
           (recur (.minusMonths month 1)
                  (conj result summary-this-month)))))))
 
+(defn monthly-txn-summary->array [monthly-totals-map-list]
+  (->> monthly-totals-map-list
+       (sort-by :month)
+       (map (fn [{:keys [month income expend]}]
+              [(str month) income expend]))
+       (#(conj % ["Month" "Income" "Expenditure"]))
+       (into [])))
+
 (defn monthly-statement [income expend month-end]
   (let [month-filter       (fn [x] (util/in-same-month-as month-end (:date x)))
         income-this-month  (filter month-filter income)

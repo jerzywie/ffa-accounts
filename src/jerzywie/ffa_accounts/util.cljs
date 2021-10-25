@@ -57,6 +57,9 @@
         (chop-start "|")
         (s/replace "|" " & "))))
 
+(defn format-keyword [keyword]
+  (-> keyword name s/capitalize))
+
 (defn days-between [d1 d2]
   (.until d1 d2 (.. jt/ChronoUnit -DAYS)))
 

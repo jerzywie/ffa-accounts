@@ -43,3 +43,12 @@
     (is (= (util/tonumber (sut/calc-grand-total
                            cat-tots-with-one-offs :no-such-interval))
            (util/tonumber 00.00)) "Zero is returned if interval key is not matched.")))
+
+(deftest monthly-txn-summary->array-tests
+  (let [summary [{:month (util/md [2021 4 1]) :income 300 :expend 270}
+                 {:month (util/md [2021 3 1]) :income 150 :expend 160}
+                 {:month (util/md [2021 2 1]) :income 100 :expend 85}]]
+    (is (= (sut/monthly-txn-summary->array summary) [["Month" "Income" "Expenditure"]
+                                                     ["2021-02-01" 100  85]
+                                                     ["2021-03-01" 150 160]
+                                                     ["2021-04-01" 300 270]]))))
