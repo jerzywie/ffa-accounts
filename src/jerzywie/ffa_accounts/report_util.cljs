@@ -32,9 +32,9 @@
         0))))
 
 (defn calc-weekly-aggregate
-  "Calculate the aggregate weekly income given a month's worth of transactions."
-  [months-txns]
-  (-> months-txns (add-up :in) (* 12) (/ 52)))
+  "Calculate the aggregate weekly income given the value for a month."
+  [month-value]
+  (-> month-value (* 12) (/ 52)))
 
 (defn get-summary-donation-totals
   "Return a list of maps, one for each different category."
@@ -99,7 +99,7 @@
   (->> monthly-totals-map-list
        (sort-by :month)
        (map (fn [{:keys [month income expend]}]
-              [(str month) income expend]))
+              [(util/date->MMM-yyyy month) income expend]))
        (#(conj % ["Month" "Income" "Expenditure"]))
        (into [])))
 

@@ -58,3 +58,22 @@
     [2021 10  5] [2021  9  5] false
     [2021 10  5] [2021  9 30] false
     [2021 10  5] [2021 11  1] false))
+
+(deftest date->dd-MMM-yyyy-tests
+  (are [date MMM-yyyy-result dd-MMM-yyyy-result]
+      (let [local-date (sut/md date)]
+        (and (= (sut/date->MMM-yyyy local-date) MMM-yyyy-result)
+             (= (sut/date->dd-MMM-yyyy local-date) dd-MMM-yyyy-result)))
+    [2021  1  1] "Jan-2021" "1-Jan-2021"
+    [1996  1 31] "Jan-1996" "31-Jan-1996"
+    [2021  2  2] "Feb-2021" "2-Feb-2021"
+    [2021  3  3] "Mar-2021" "3-Mar-2021"
+    [2021  4  5] "Apr-2021" "5-Apr-2021"
+    [2021  5  8] "May-2021" "8-May-2021"
+    [2021  6 13] "Jun-2021" "13-Jun-2021"
+    [2021  7 21] "Jul-2021" "21-Jul-2021"
+    [2021  8 16] "Aug-2021" "16-Aug-2021"
+    [2021  9 11] "Sep-2021" "11-Sep-2021"
+    [2021 10 23] "Oct-2021" "23-Oct-2021"
+    [2021 11 30] "Nov-2021" "30-Nov-2021"
+    [2021 12 25] "Dec-2021" "25-Dec-2021"))

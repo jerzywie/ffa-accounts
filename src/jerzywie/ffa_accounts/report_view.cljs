@@ -19,8 +19,8 @@
                   :new-amount "Grand total one-offs"
                   :one-off "Grand total one-offs"})
 
-(defn report-donations [processed-txns filter-fn]
-  (let [filtered-txns (filter filter-fn processed-txns)
+(defn report-donations [processed-txns filter-fn sort-by-key]
+  (let [filtered-txns (sort-by sort-by-key (filter filter-fn processed-txns))
         summ-donations (r-util/get-summary-donation-totals filtered-txns)]
     [:div
      [:h5 "Summary"]
@@ -127,25 +127,36 @@
      [:table.table.table-striped
       [:thead.black-border-bottom
        [:tr
-        [:th             {:rowSpan 2} "Month"]
+        [:th.text-end    {:rowSpan 2} "Month"]
         [:th.text-center {:colSpan 3} "Income (Donations)"]
         [:th.text-end    {:rowSpan 2} "Expenditure"]
-        [:th.text-end    {:rowSpan 2} "Income over Expenditure"]]
+        [:th.text-end    {:rowSpan 2} "Income over Expenditure"]
+        [:th.text-center {:colSpan 2} "Weekly averages"]]
        [:tr
         [:th.text-end "Regular"]
         [:th.text-end "Occasional/One-Off"]
-        [:th.text-end "Total"]]]
+        [:th.text-end "Total"]
+        [:th.text-end "Inc"]
+        [:th.text-end "Exp"]]]
       (into [:tbody]
             (for [{:keys [month income reg-inc non-reg-inc expend]} txn-summary]
-              [:tr
-               [:td (apply str (take 7 (str month)))]
-               [:td.text-end (util/tonumber reg-inc)]
-               [:td.text-end (util/tonumber non-reg-inc)]
-               [:td.text-end (util/tonumber income)]
-               [:td.text-end (util/tonumber expend)]
-               [:td.text-end (util/tonumber (- income expend))]]))]
+              (let [inc-exp-diff (- income expend)]
+                [:tr.text-end
+                 {:class (if (pos? inc-exp-diff) "table-success" "table-danger")}
+                 [:td (util/date->MMM-yyyy month)]
+                 [:td (util/tonumber reg-inc)]
+                 [:td (util/tonumber non-reg-inc)]
+                 [:td (util/tonumber income)]
+                 [:td (util/tonumber expend)]
+                 [:td (util/tonumber inc-exp-diff)]
+                 [:td (-> income r-util/calc-weekly-aggregate util/tonumber)]
+                 [:td (-> expend r-util/calc-weekly-aggregate util/tonumber)]
+                 ])))]
      (let [plot-data (r-util/monthly-txn-summary->array txn-summary)]
-        [graph-view/draw-chart "AreaChart" plot-data {:title "month-by-month"}]
+       [graph-view/draw-chart "AreaChart"
+        plot-data
+        {:title "month-by-month"
+         :colors ["green" "red"]                                            }]
        )]))
 
 (defn monthly-statement-view [income expend month-end]
@@ -172,14 +183,14 @@
                                                              out-text
                                                              in-text))]
                      [:tr
-                      [:td (str date)]
+                      [:td (util/date->dd-MMM-yyyy date)]
                       [:td (vary-in-out (fmt-income-type) type)]
                       [:td (vary-in-out account-name desc)]
                       [:td (util/tonumber in)]
                       [:td (util/tonumber out)]
                       [:td (util/tonumber bal)]])) months-txns))]]))
 
-(defn new-report [data analysis-date-or-nil]
+(defn report [data analysis-date-or-nil]
   (when data
     (let [allocd-txns (:allocd-txns (state/state))
           expend (:exp (state/state))
@@ -201,8 +212,8 @@
                (range))]
          [:div.row
           [:div.col-md-4]
-          [:div.col-md-4 (str "First transaction: " date-first-txn)]
-          [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
+          [:div.col-md-4 (str "First transaction: " (util/date->dd-MMM-yyyy date-first-txn))]
+          [:div.col-md-4 (str "Last transaction: " (util/date->dd-MMM-yyyy date-last-txn))]]
          [:div.row
           [:div.col-md-4]
           [:div.col-md-4 (str "Income: " (util/tonumber (r-util/add-up processed-transactions :in) "£"))]
@@ -225,57 +236,15 @@
          [:h4 "Current regular donations"]
          [report-donations
           processed-transactions
-          (fn [x] (contains? x :current))]
+          (fn [x] (contains? x :current))
+          :period]
 
          [:h4 "One off amounts in last month"]
          [report-donations
           processed-transactions
           (fn [x] (and (not= (:freq x) :regular)
-                       (util/in-same-month-as analysis-date (:date x))))]
-
-
-         ]]])))
-
-(defn report [data analysis-date-or-nil]
-  (when data
-    (let [allocd-txns (:allocd-txns (state/state))
-          date-first-txn (-> data :txns first :date)
-          date-last-txn (-> data :txns last :date)
-          analysis-date (or analysis-date-or-nil date-last-txn)
-          processed-transactions (anal/analyse-donations analysis-date allocd-txns)
-          last-months-txns (fn [x] (util/in-same-month-as analysis-date (:date x)))
-          income-in-month (filter last-months-txns processed-transactions)
-          expenditure-in-month (filter last-months-txns (:exp (state/state)))]
-      (state/add-processed-transactions! processed-transactions)
-      (state/add-analysis-date! analysis-date)
-      [:div
-       [:div.row
-        [:div.col
-         [:h4 (str "Donations as of " analysis-date)]
-
-         [:h4 "Account summary"]
-         [:div.row
-          (map (fn [[k v] id] ^{:key id} [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
-               (:accinfo data)
-               (range))]
-         [:div.row
-          [:div.col-md-4]
-          [:div.col-md-4 (str "First transaction: " date-first-txn)]
-          [:div.col-md-4 (str "Last transaction: " date-last-txn)]]
-
-         [:h4 "Monthly summary"]
-         [txn-summary income-in-month expenditure-in-month]
-
-         [:h4 "Current regular donations"]
-         [report-donations
-          processed-transactions
-          (fn [x] (contains? x :current))]
-
-         [:h4 "One off amounts in last month"]
-         [report-donations
-          processed-transactions
-          (fn [x] (and (not= (:freq x) :regular)
-                      (util/in-same-month-as analysis-date (:date x))))]
+                      (util/in-same-month-as analysis-date (:date x))))
+          :date]
 
          [:h4 "Expenditure in last month"]
          [report-expenditure
@@ -283,4 +252,6 @@
           (fn [x] (util/in-same-month-as analysis-date (:date x)))]
 
          [:h4 "Donor report"]
-         [report-donors]]]])))
+         [report-donors]
+
+         ]]])))

@@ -13,7 +13,7 @@
   v)
 
 (defn parse-iso-date-string
-  "Parse date string of form 'yyyy-mm-dd'"
+  "Parse date string of form 'yyyy-MM-dd'"
   [iso-date-string]
   (.parse j/LocalDate iso-date-string))
 
@@ -28,11 +28,21 @@
     s))
 
 (defn convert-txn-date-string
-  "Process a date string in the format dd MMM yyyy"
+  "Process a date string in the format dd MMM yyyy."
   [dstr]
   (let [[dd MMM yyyy] (s/split dstr #"\s")
         MM (inc (.indexOf month-names MMM))]
     (parse-iso-date-string (g/format "%s-%02i-%s" yyyy MM dd))))
+
+(defn date->MMM-yyyy
+  "Convert a local-date to 'MMM-yyyy' string."
+  [date]
+  (str (->> (.monthValue date) dec (nth month-names)) "-" (.year date)))
+
+(defn date->dd-MMM-yyyy
+  "Convert a local-date to 'dd-MMM-yyyy' string."
+  [date]
+  (str (.dayOfMonth date) "-" (date->MMM-yyyy date)))
 
 (defn tonumber
   ([v curr]
