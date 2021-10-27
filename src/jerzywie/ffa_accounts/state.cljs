@@ -4,6 +4,7 @@
 
 ;;define app state
 (defonce initial-app-state {})
+(defonce chart-keys [:monthly-chart :exp-chart])
 (defonce app-state (atom initial-app-state))
 
 (defn state []
@@ -40,10 +41,13 @@
   (add-stuff! :charts-ready? true))
 
 (defn set-graph-data-changed! []
-  (add-stuff! :graph-data-changed true))
+  (add-stuff! :graph-data-changed (zipmap chart-keys (repeat true))))
 
-(defn reset-graph-data-changed! []
-  (add-stuff! :graph-data-changed false))
+(defn reset-graph-data-changed! [chart-key]
+  (swap! app-state assoc-in [:graph-data-changed chart-key] false))
+
+(defn is-graph-data-changed? [chart-key]
+  (get-in @app-state [:graph-data-changed chart-key]))
 
 (defn debug-app-state []
   (when ^boolean js/goog.DEBUG

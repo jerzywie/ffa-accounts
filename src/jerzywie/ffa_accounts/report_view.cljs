@@ -19,6 +19,23 @@
                   :new-amount "Grand total one-offs"
                   :one-off "Grand total one-offs"})
 
+(defn account-summary [accinfo income expend date-first-txn date-last-txn]
+  [:div
+   [:div.row
+    (map (fn [[k v] id] ^{:key id}
+           [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
+         accinfo
+         (range))]
+   [:div.row
+    [:div.col-md-4]
+    [:div.col-md-4 (str "First transaction: " (util/date->dd-MMM-yyyy date-first-txn))]
+    [:div.col-md-4 (str "Last transaction: " (util/date->dd-MMM-yyyy date-last-txn))]]
+   [:div.row
+    [:div.col-md-4]
+    [:div.col-md-4 (str "Income: " (util/tonumber (r-util/add-up income :in) "£"))]
+    [:div.col-md-4 (str "Expenditure: " (util/tonumber (r-util/add-up expend :out) "£"))]]
+])
+
 (defn report-donations [processed-txns filter-fn sort-by-key]
   (let [filtered-txns (sort-by sort-by-key (filter filter-fn processed-txns))
         summ-donations (r-util/get-summary-donation-totals filtered-txns)]
@@ -94,7 +111,7 @@
      [:div.row
       [:div.col
        (let [plot-data (r-util/summary-totals->array summ-exp)]
-         [graph-view/draw-chart "PieChart" plot-data {:title "Expenditure"}])]]
+         [graph-view/draw-chart "PieChart" :exp-chart plot-data {:title "Expenditure"}])]]
      [:h5 "Detail"]
      [:table.table.table-striped
       [:thead.table-light
@@ -111,21 +128,11 @@
                [:td type]
                [:td.text-end (util/tonumber out)]]))]]))
 
-(defn txn-summary [income expenditure]
-  (let [tot-in (r-util/add-up income :in)
-        tot-out (r-util/add-up expenditure :out)]
-    [:div.row
-     [:div.col (str "Total in for month: " (util/tonumber tot-in "£"))]
-     [:div.col (str "Total out for month: " (util/tonumber tot-out "£"))]
-     [:div.col (str "Weekly aggregate income: " (-> income
-                                                    r-util/calc-weekly-aggregate
-                                                    (util/tonumber "£")))]]))
-
 (defn monthly-txn-summary-view [income expend date-first-txn date-last-txn]
   (let [txn-summary (r-util/monthly-txn-summary income expend date-first-txn date-last-txn)]
     [:div
-     [:table.table.table-striped
-      [:thead.black-border-bottom
+     [:table.table
+      [:thead.black-border-bottom.table-light
        [:tr
         [:th.text-end    {:rowSpan 2} "Month"]
         [:th.text-center {:colSpan 3} "Income (Donations)"]
@@ -154,6 +161,7 @@
                  ])))]
      (let [plot-data (r-util/monthly-txn-summary->array txn-summary)]
        [graph-view/draw-chart "AreaChart"
+        :monthly-chart
         plot-data
         {:title "month-by-month"
          :colors ["green" "red"]                                            }]
@@ -163,14 +171,14 @@
   (let [months-txns (r-util/monthly-statement income expend month-end)]
     [:div
      [:table.table.table-striped
-      [:thead
+      [:thead.table-light
        [:tr
         [:th "Date"]
         [:th "Type"]
         [:th "Name"]
-        [:th "Money in"]
-        [:th "Money Out"]
-        [:th "Balance"]]]
+        [:th.text-end "Money in"]
+        [:th.text-end "Money Out"]
+        [:th.text-end "Balance"]]]
       (into [:tbody]
             (map (fn [{:keys [date type period freq desc account-name in out bal]}]
                    (let [fmt-income-type (fn []
@@ -186,9 +194,15 @@
                       [:td (util/date->dd-MMM-yyyy date)]
                       [:td (vary-in-out (fmt-income-type) type)]
                       [:td (vary-in-out account-name desc)]
-                      [:td (util/tonumber in)]
-                      [:td (util/tonumber out)]
-                      [:td (util/tonumber bal)]])) months-txns))]]))
+                      [:td.text-end (util/tonumber in)]
+                      [:td.text-end (util/tonumber out)]
+                      [:td.text-end (util/tonumber bal)]])) months-txns))
+      [:tfoot.table-light
+       [:tr
+        [:td {:colSpan 3} "T O T A L S"]
+        [:td.text-end (-> months-txns (r-util/add-up :in) (util/tonumber))]
+        [:td.text-end (-> months-txns (r-util/add-up :out) (util/tonumber))]
+        [:td ""]]]]]))
 
 (defn report [data analysis-date-or-nil]
   (when data
@@ -197,61 +211,47 @@
           date-first-txn (-> data :txns first :date)
           date-last-txn (-> data :txns last :date)
           analysis-date (or analysis-date-or-nil date-last-txn)
-          processed-transactions (anal/analyse-donations analysis-date allocd-txns)]
-      (state/add-processed-transactions! processed-transactions)
+          income (anal/analyse-donations analysis-date allocd-txns)]
+      (state/add-processed-transactions! income)
       (state/add-analysis-date! analysis-date)
       (when-not analysis-date-or-nil (state/add-stuff! :statement-month analysis-date))
       [:div
        [:div.row
         [:div.col
-         [:h4 "Account summary"]
-         [:div.row
-          (map (fn [[k v] id] ^{:key id}
-                 [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
-               (:accinfo data)
-               (range))]
-         [:div.row
-          [:div.col-md-4]
-          [:div.col-md-4 (str "First transaction: " (util/date->dd-MMM-yyyy date-first-txn))]
-          [:div.col-md-4 (str "Last transaction: " (util/date->dd-MMM-yyyy date-last-txn))]]
-         [:div.row
-          [:div.col-md-4]
-          [:div.col-md-4 (str "Income: " (util/tonumber (r-util/add-up processed-transactions :in) "£"))]
-          [:div.col-md-4 (str "Expenditure: " (util/tonumber (r-util/add-up expend :out) "£"))]]
+         [:h4.mt-4 "Account summary"]
+         [account-summary (:accinfo data) income expend date-first-txn date-last-txn]
 
-         [:h4 "Monthly summary"]
-         [:div [monthly-txn-summary-view processed-transactions
-                expend
-                date-first-txn
-                date-last-txn]]
-         [:div.row.row-cols-2
+         [:h4.mt-4 "Monthly summary"]
+         [monthly-txn-summary-view income expend date-first-txn date-last-txn]
+
+         [:div.row.row-cols-2.mt-4
           [:div.col
-           [:h4 "Monthly statement"]]
-          [:div.col
+           [:h4(str "Monthly statement for " (util/date->MMM-yyyy (:statement-month (state/state))))]]
+          [:div.col.d-print-none
            [d-p/month-picker-adaptive nil :statement-month]]]
-         [:div [monthly-statement-view processed-transactions
-                expend
-                (:statement-month (state/state))]]
 
-         [:h4 "Current regular donations"]
+         [monthly-statement-view income
+          expend
+          (:statement-month (state/state))]
+
+         [:h4.mt-4 "Current regular donations"]
          [report-donations
-          processed-transactions
+          income
           (fn [x] (contains? x :current))
           :period]
 
-         [:h4 "One off amounts in last month"]
+         [:h4.mt-4 "One off amounts in last month"]
          [report-donations
-          processed-transactions
+          income
           (fn [x] (and (not= (:freq x) :regular)
                       (util/in-same-month-as analysis-date (:date x))))
           :date]
 
-         [:h4 "Expenditure in last month"]
+         [:h4.mt-4 "Expenditure in last month"]
          [report-expenditure
           (:exp (state/state))
           (fn [x] (util/in-same-month-as analysis-date (:date x)))]
 
-         [:h4 "Donor report"]
+         [:h4.mt-4 "Donor report"]
          [report-donors]
-
          ]]])))

@@ -20,6 +20,5 @@
        [:div.mb-3.col
         [d-p/month-picker-adaptive "Choose analysis date" :analysis-date]]]
       [:div.mb-3 (report/report data analysis-date)]
-      [:hr]
       [state/debug-app-state]]
  )])
