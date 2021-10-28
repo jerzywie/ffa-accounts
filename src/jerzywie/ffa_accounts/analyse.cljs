@@ -2,13 +2,17 @@
   (:require [jerzywie.ffa-accounts.cache :as nc]
             [jerzywie.ffa-accounts.util :as util]))
 
+(defn between?
+  "True if low <= value <= high."
+  [value low high]
+  (and (> value (dec low)) (< value (inc high))))
+
 (defn deduce-period [d1 d2]
   (let [days (util/days-between d1 d2)]
     (cond
-      (= days 7)                    {:period :weekly        :freq :regular}
-      (or (= days 6) (= days 8))    {:period :approx-weekly :freq :regular}
-      (= days 14)                   {:period :fortnightly   :freq :regular}
-      (and (> days 27) (< days 32)) {:period :monthly       :freq :regular}
+      (between? days 6 8)            {:period :weekly        :freq :regular}
+      (between? days 12 16)          {:period :fortnightly   :freq :regular}
+      (between? days 28 32)          {:period :monthly       :freq :regular}
      :else                          {:period :none          :freq :irregular})))
 
 (defn interval-analysis
@@ -49,7 +53,7 @@
   (if (= 1 (count donations-tranche))
     donations-tranche
     (let [within-month? (fn [d1 d2]
-                          (let [dd (util/days-between d1 d2)] (and (> dd -1) (< dd 32))))
+                          (between? (util/days-between d1 d2) 0 31))
           grouped-donations (group-by #(within-month? (:date %) analysis-date)
                                       donations-tranche)
           add-recency (fn [{:keys [date period] :as txn}]
@@ -59,8 +63,14 @@
                           (if (some #{day-diff} (range max-day-diff))
                             (assoc txn :current true)
                             txn)))
-          within-month-with-recency (map add-recency (get grouped-donations true))]
-      (concat (get grouped-donations false) within-month-with-recency))))
+          within-month+recency (map add-recency (get grouped-donations true))
+          ensure-1-current (fn [{:keys [current] :as txn} index]
+                                    (let [max-index (dec (count within-month+recency))]
+                                      (if (and current (not= index max-index))
+                                        (dissoc txn :current)
+                                        txn)))
+          within-month-singular (map ensure-1-current within-month+recency (range))]
+      (concat (get grouped-donations false) within-month-singular))))
 
 (defn analyse-donor-tranches [analysis-date tranches]
   (map #(analyse-recency analysis-date %) tranches))

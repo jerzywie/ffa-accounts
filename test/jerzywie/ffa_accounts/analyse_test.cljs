@@ -10,22 +10,31 @@
 
 (deftest deduce-period-tests
   (are [d1 d2 result] (= (sut/deduce-period (md d1) (md d2)) result)
-    [2021  8  3] [2021  8 10] {:period :weekly :freq :regular}
-    [2021  1 15] [2021  2 15] {:period :monthly :freq :regular}
-    [2021  2 15] [2021  3 15] {:period :monthly :freq :regular}
-    [2021  4 15] [2021  5 15] {:period :monthly :freq :regular}
-    [2020  2 15] [2020  3 15] {:period :monthly :freq :regular}
-    [2021  8 29] [2021  9  5] {:period :weekly :freq :regular}
-    [2021  8  3] [2021  8  9] {:period :approx-weekly :freq :regular}
-    [2021  8  3] [2021  8 11] {:period :approx-weekly :freq :regular}
-    [2021  8  3] [2021  8  8] {:period :none :freq :irregular}
-    [2021  8  3] [2021  8 12] {:period :none :freq :irregular}))
+    [2021  8  3] [2021  8 10] {:period :weekly      :freq :regular}
+    [2021  1 15] [2021  2 15] {:period :monthly     :freq :regular}
+    [2021  2 15] [2021  3 15] {:period :monthly     :freq :regular}
+    [2021  4 15] [2021  5 15] {:period :monthly     :freq :regular}
+    [2020  2 15] [2020  3 15] {:period :monthly     :freq :regular}
+    [2021  8 29] [2021  9  5] {:period :weekly      :freq :regular}
+    [2021  8  3] [2021  8  9] {:period :weekly      :freq :regular}
+    [2021  8  3] [2021  8 11] {:period :weekly      :freq :regular}
+    [2021 10  6] [2021 10 20] {:period :fortnightly :freq :regular}
+    [2021 10  6] [2021 10 18] {:period :fortnightly :freq :regular}
+    [2021 10  6] [2021 10 22] {:period :fortnightly :freq :regular}
+    [2021  7 22] [2021  8 23] {:period :monthly     :freq :regular}
+    [2021  8  3] [2021  8  8] {:period :none        :freq :irregular}
+    [2021  8  3] [2021  8 12] {:period :none        :freq :irregular}))
 
 (def weekly-first-sept [{:date (md  [2021 8 25])  :period :weekly :freq :regular :new true}
                         {:date (md  [2021 9  1])  :period :weekly :freq :regular}])
 
 (def monthly-first-sept [{:date (md [2021 8  1])  :period :monthly :freq :regular :new true}
                          {:date (md [2021 9  1])  :period :monthly :freq :regular}])
+
+(def monthly-22nd-txns  [{:date (md [2021 7 22]) :period :monthly :freq :regular}
+                          {:date (md [2021 8 23]) :period :monthly :freq :regular}
+                          {:date (md [2021 9 22]) :period :monthly :freq :regular}
+                          {:date (md [2021 10 22]) :period :monthly :freq :regular}])
 
 (def august-weekly-txns [{:date (md [2021 7 25])  :period :weekly :freq :regular :new true}
                          {:date (md [2021 8  1])  :period :weekly :freq :regular}
@@ -38,12 +47,12 @@
 
 (deftest analyse-recency-tests
   (are
-      [donations analysis-date match-expected? current-date]
+      [donations analysis-date match-expected? date-of-current]
       (let [ard (sut/analyse-recency (md analysis-date) donations)
             current (filter current? ard)]
         (if match-expected?
           ; match date of element marked with :current true and expect only one of them
-          (and (= (md current-date)
+          (and (= (md date-of-current)
                   (:date (first current)))
                (= (count current) 1))
           ; check that no elements are marked with :current
@@ -68,6 +77,7 @@
     august-weekly-txns [2021  8  1] true  [2021 8  1]
     august-weekly-txns [2021  7 31] true  [2021 7 25]
     august-weekly-txns [2021  7 24] false      nil
+    monthly-22nd-txns  [2021 10 22] true  [2021 10 22]
     ))
 
 (deftest analyse-recency-tests-one-offs
