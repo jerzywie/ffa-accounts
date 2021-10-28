@@ -16,7 +16,7 @@
                   :weekly-grand-total "Net donations/week"
                   :monthly-grand-total "Net donations/month"
                   :weekly-aggregate "Aggregate weekly income"
-                  :new-amount "Grand total one-offs"
+                  :none "Grand total one-offs"
                   :one-off "Grand total one-offs"})
 
 (defn account-summary [accinfo income expend date-first-txn date-last-txn]
@@ -36,19 +36,19 @@
     [:div.col-md-4 (str "Expenditure: " (util/tonumber (r-util/add-up expend :out) "£"))]]
 ])
 
-(defn report-donations [processed-txns filter-fn sort-by-key]
-  (let [filtered-txns (sort-by sort-by-key (filter filter-fn processed-txns))
+(defn report-donations [income filter-fn sort-by-key]
+  (let [filtered-txns (sort-by sort-by-key (filter filter-fn income))
         summ-donations (r-util/get-summary-donation-totals filtered-txns)]
     [:div
      [:h5 "Summary"]
      [:div.row.mb-3
-      ;(map (fn [{:keys [name amount]} id]
-       ;      (when (> amount 0)
-        ;       ^{:key id}
-         ;      [:div.col
-          ;      (str (name caption-map) ": " (util/tonumber amount "£"))]))
-           ;summ-donations
-           ;(range))
+      (map (fn [{:keys [name amount]} id]
+             (when (> amount 0)
+               ^{:key id}
+               [:div.col
+                (str (name caption-map) ": " (util/tonumber amount "£"))]))
+           summ-donations
+           (range))
       ]
 
      [:h5 "Detail"]
@@ -65,7 +65,7 @@
                [:td account-name]
                [:td.text-end (util/tonumber in)]
                [:td (util/format-keyword period)]
-               [:td (str date)]]))]]))
+               [:td (util/date->dd-MMM-yyyy date)]]))]]))
 
 (defn report-donors []
   (let [amount-analysis (fn [txns]
@@ -94,8 +94,8 @@
               [:td.text-right count]
               [:td (r-util/format-donor-amounts amounts)]
               [:td.text-end (util/tonumber (r-util/get-donor-amount-total amounts) "£")]
-              [:td (str f-date)]
-              [:td (str l-date)]]))]))
+              [:td (util/date->dd-MMM-yyyy f-date)]
+              [:td (util/date->dd-MMM-yyyy l-date)]]))]))
 
 (defn report-expenditure [txns filter-fn]
   (let [filtered-txns (filter filter-fn txns)
@@ -107,7 +107,6 @@
              [:div.col (str name ": " (util/tonumber amount "£"))])
            summ-exp
            (range))]
-                                        ;[:div.col (with-out-str (pprint summ-exp))]
      [:div.row
       [:div.col
        (let [plot-data (r-util/summary-totals->array summ-exp)]
@@ -123,7 +122,7 @@
       (into [:tbody]
             (for [{:keys [date desc type out]} filtered-txns]
               [:tr
-               [:td (str date)]
+               [:td (util/date->dd-MMM-yyyy date)]
                [:td desc]
                [:td type]
                [:td.text-end (util/tonumber out)]]))]]))
@@ -163,14 +162,17 @@
        [chart-view/draw-chart "AreaChart"
         :monthly-chart
         plot-data
-        {:title "month-by-month"
-         :colors ["green" "red"]                                            }]
+        {:title "Month by Month Income and Expenditure"
+         :colors ["green" "red"]
+         :hAxis {:title "Month"}
+         :vAxis {:title "Pounds"}
+         :backgroundColor {:strokeWidth 2}}]
        )]))
 
 (defn monthly-statement-view [income expend month-end]
   (let [months-txns (r-util/monthly-statement income expend month-end)]
     [:div
-     [:table.table.table-striped
+     [:table.table.table-striped.table-sm
       [:thead.table-light
        [:tr
         [:th "Date"]
@@ -199,7 +201,7 @@
                       [:td.text-end (util/tonumber bal)]])) months-txns))
       [:tfoot.table-light
        [:tr
-        [:td {:colSpan 3} "T O T A L S"]
+        [:td.fw-bold {:colSpan 3} "T O T A L S"]
         [:td.text-end (-> months-txns (r-util/add-up :in) (util/tonumber))]
         [:td.text-end (-> months-txns (r-util/add-up :out) (util/tonumber))]
         [:td ""]]]]]))
@@ -226,7 +228,7 @@
 
          [:div.row.row-cols-2.mt-4
           [:div.col
-           [:h4(str "Monthly statement for " (util/date->MMM-yyyy (:statement-month (state/state))))]]
+           [:h4(str "Monthly transactions for " (util/date->MMM-yyyy (:statement-month (state/state))))]]
           [:div.col.d-print-none
            [d-p/month-picker-adaptive nil :statement-month]]]
 

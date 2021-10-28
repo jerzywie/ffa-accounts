@@ -64,12 +64,12 @@
       (let [local-date (sut/md date)]
         (and (= (sut/date->MMM-yyyy local-date) MMM-yyyy-result)
              (= (sut/date->dd-MMM-yyyy local-date) dd-MMM-yyyy-result)))
-    [2021  1  1] "Jan-2021" "1-Jan-2021"
+    [2021  1  1] "Jan-2021" "01-Jan-2021"
     [1996  1 31] "Jan-1996" "31-Jan-1996"
-    [2021  2  2] "Feb-2021" "2-Feb-2021"
-    [2021  3  3] "Mar-2021" "3-Mar-2021"
-    [2021  4  5] "Apr-2021" "5-Apr-2021"
-    [2021  5  8] "May-2021" "8-May-2021"
+    [2021  2  2] "Feb-2021" "02-Feb-2021"
+    [2021  3  3] "Mar-2021" "03-Mar-2021"
+    [2021  4  5] "Apr-2021" "05-Apr-2021"
+    [2021  5  8] "May-2021" "08-May-2021"
     [2021  6 13] "Jun-2021" "13-Jun-2021"
     [2021  7 21] "Jul-2021" "21-Jul-2021"
     [2021  8 16] "Aug-2021" "16-Aug-2021"

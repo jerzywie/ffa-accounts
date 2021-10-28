@@ -42,7 +42,7 @@
 (defn date->dd-MMM-yyyy
   "Convert a local-date to 'dd-MMM-yyyy' string."
   [date]
-  (str (.dayOfMonth date) "-" (date->MMM-yyyy date)))
+  (g/format "%02i-%s" (.dayOfMonth date) (date->MMM-yyyy date)))
 
 (defn tonumber
   ([v curr]
