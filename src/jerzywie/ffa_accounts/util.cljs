@@ -95,3 +95,14 @@
 
 (defn get-element-by-id [id]
   (gdom/getElement id))
+
+(def js-monday    (.. j/DayOfWeek -MONDAY))
+(def js-tuesday   (.. j/DayOfWeek -TUESDAY))
+(def js-wednesday (.. j/DayOfWeek -WEDNESDAY))
+(def js-thursday  (.. j/DayOfWeek -THURSDAY))
+(def js-friday    (.. j/DayOfWeek -FRIDAY))
+(def js-saturday  (.. j/DayOfWeek -SATURDAY))
+(def js-sunday    (.. j/DayOfWeek -SUNDAY))
+
+(defn get-next-day [date day]
+  (.with date (.nextOrSame jt/TemporalAdjusters day)))

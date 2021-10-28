@@ -256,4 +256,9 @@
 
          [:h4.mt-4 "Donor report"]
          [report-donors]
+
+         [:h4.mt-4 "Weekly donation analysis"]
+         (-> (r-util/weekly-regular-donations allocd-txns analysis-date 12)
+             pprint
+             with-out-str)
          ]]])))

@@ -1,6 +1,7 @@
 (ns jerzywie.ffa-accounts.report-util
   (:require
    [jerzywie.ffa-accounts.util :as util]
+   [jerzywie.ffa-accounts.analyse :as anal]
    [clojure.string :as s]))
 
 (defn format-donor-amounts [amounts]
@@ -108,3 +109,28 @@
         income-this-month  (filter month-filter income)
         expend-this-month  (filter month-filter expend)]
     (sort-by :seqno (concat income-this-month expend-this-month))))
+
+(defn weekly-regular-donations [allocd-txns last-week-date num-weeks]
+  (let [next-or-same-friday (util/get-next-day last-week-date util/js-friday)
+        current? (fn [x] (:current x))
+        reduce-fn (fn [result {:keys [name amount]}] (assoc result name amount))
+        aggregate (fn [{:keys [weekly fortnightly monthly] :as rec}]
+                    (assoc rec :aggregate (+ weekly
+                                             (/ fortnightly 2)
+                                             (calc-weekly-aggregate monthly))))]
+    (loop [week next-or-same-friday
+           count num-weeks
+           result []]
+      (if (= count 0)
+        result
+        (let [current-this-week (->> allocd-txns
+                                 (anal/analyse-donations week)
+                                 (filter current?))
+              summ-totals (get-summary-donation-totals current-this-week)
+              this-week (->> summ-totals
+                             (reduce reduce-fn {})
+                             (#(assoc % :date week))
+                             aggregate)]
+          (recur (.minusWeeks week 1)
+                 (dec count)
+                 (conj result this-week)))))))
