@@ -1,4 +1,4 @@
-(ns jerzywie.ffa-accounts.graph-view
+(ns jerzywie.ffa-accounts.chart-view
   (:require
    [jerzywie.ffa-accounts.state :as state]))
 
@@ -14,11 +14,11 @@
      [:div
       {:ref
        (fn [this]
-         (when (and this (state/is-graph-data-changed? chart-key))
-           (prn "drawing data-changed?" (str chart-key) (state/is-graph-data-changed? chart-key))
+         (when (and this (state/is-chart-data-changed? chart-key))
+           (prn "Is chart data-changed?" (str chart-key) (state/is-chart-data-changed? chart-key))
            (.draw (new (aget js/google.visualization chart-type) this)
                   (data-table data)
                   (clj->js options))
-          (state/reset-graph-data-changed! chart-key)
+          (state/reset-chart-data-changed! chart-key)
            ))}]
      [:div "Loading..."])])

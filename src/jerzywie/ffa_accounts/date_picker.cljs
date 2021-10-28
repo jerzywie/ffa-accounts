@@ -16,7 +16,7 @@
                     (state/add-analysis-date!
                      (util/parse-iso-date-string
                       (.-target.value e)))
-                    (state/set-graph-data-changed!))}]]))
+                    (state/set-chart-data-changed!))}]]))
 
 
 (defonce month-picker-state (reagent/atom {:native ""
@@ -74,7 +74,7 @@
                               (str "-01")
                               util/parse-iso-date-string
                               util/last-date-in-month))
-                         (state/set-graph-data-changed!))}]]
+                         (state/set-chart-data-changed!))}]]
          [:div#fallback-month-picker {:class (:fallback @month-picker-state)}
           [:form {:on-submit (fn [e]
                                (.preventDefault e)

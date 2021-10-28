@@ -31,5 +31,5 @@
 ;; specify reload hook with ^;after-load metadata
 (defn ^:after-load on-reload []
   (mount-app-element)
-  (state/set-graph-data-changed!)
+  (state/set-chart-data-changed!)
   (println "reload at " (str (util/time-now))))

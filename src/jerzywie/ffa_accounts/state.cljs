@@ -40,14 +40,14 @@
 (defn set-charts-ready! []
   (add-stuff! :charts-ready? true))
 
-(defn set-graph-data-changed! []
-  (add-stuff! :graph-data-changed (zipmap chart-keys (repeat true))))
+(defn set-chart-data-changed! []
+  (add-stuff! :chart-data-changed (zipmap chart-keys (repeat true))))
 
-(defn reset-graph-data-changed! [chart-key]
-  (swap! app-state assoc-in [:graph-data-changed chart-key] false))
+(defn reset-chart-data-changed! [chart-key]
+  (swap! app-state assoc-in [:chart-data-changed chart-key] false))
 
-(defn is-graph-data-changed? [chart-key]
-  (get-in @app-state [:graph-data-changed chart-key]))
+(defn is-chart-data-changed? [chart-key]
+  (get-in @app-state [:chart-data-changed chart-key]))
 
 (defn debug-app-state []
   (when ^boolean js/goog.DEBUG

@@ -5,7 +5,7 @@
    [jerzywie.ffa-accounts.report-util :as r-util] 
    [jerzywie.ffa-accounts.cache :as cache]
    [jerzywie.ffa-accounts.state :as state]
-   [jerzywie.ffa-accounts.graph-view :as graph-view]
+   [jerzywie.ffa-accounts.chart-view :as chart-view]
    [jerzywie.ffa-accounts.date-picker :as d-p]
    [clojure.string :refer [capitalize]]
    [clojure.pprint :refer [pprint]]))
@@ -111,7 +111,7 @@
      [:div.row
       [:div.col
        (let [plot-data (r-util/summary-totals->array summ-exp)]
-         [graph-view/draw-chart "PieChart" :exp-chart plot-data {:title "Expenditure"}])]]
+         [chart-view/draw-chart "PieChart" :exp-chart plot-data {:title "Expenditure"}])]]
      [:h5 "Detail"]
      [:table.table.table-striped
       [:thead.table-light
@@ -160,7 +160,7 @@
                  [:td (-> expend r-util/calc-weekly-aggregate util/tonumber)]
                  ])))]
      (let [plot-data (r-util/monthly-txn-summary->array txn-summary)]
-       [graph-view/draw-chart "AreaChart"
+       [chart-view/draw-chart "AreaChart"
         :monthly-chart
         plot-data
         {:title "month-by-month"
