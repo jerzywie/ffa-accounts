@@ -206,6 +206,18 @@
         [:td.text-end (-> months-txns (r-util/add-up :out) (util/tonumber))]
         [:td ""]]]]]))
 
+(defn weekly-analysis [donations expenditure analysis-date num-weeks]
+  (let [weekly-in (r-util/weekly-regular-donations donations analysis-date num-weeks)
+        plot-data (r-util/weekly-regular-donations->array weekly-in)]
+    (-> weekly-in
+        pprint
+        with-out-str)
+    [chart-view/draw-chart "AreaChart"
+     :weekly-analysis
+     plot-data
+     {:title "weekly"}]
+    ))
+
 (defn report [data analysis-date-or-nil]
   (when data
     (let [allocd-txns (:allocd-txns (state/state))
@@ -258,7 +270,5 @@
          [report-donors]
 
          [:h4.mt-4 "Weekly donation analysis"]
-         (-> (r-util/weekly-regular-donations allocd-txns analysis-date 12)
-             pprint
-             with-out-str)
+         [weekly-analysis allocd-txns expend analysis-date 12]
          ]]])))

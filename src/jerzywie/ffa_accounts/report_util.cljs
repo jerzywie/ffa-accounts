@@ -134,3 +134,11 @@
           (recur (.minusWeeks week 1)
                  (dec count)
                  (conj result this-week)))))))
+
+(defn weekly-regular-donations->array [weekly-donations-map-list]
+  (->> weekly-donations-map-list
+       (sort-by :date)
+       (map (fn [{:keys [date aggregate]}]
+              [(util/date->dd-MMM-yyyy date) aggregate]))
+       (#(conj % ["Week (Friday)" "Aggregate donations"]))
+       (into [])))

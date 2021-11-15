@@ -4,7 +4,7 @@
 
 ;;define app state
 (defonce initial-app-state {})
-(defonce chart-keys [:monthly-chart :exp-chart])
+(defonce chart-keys [:monthly-chart :exp-chart :weekly-analysis])
 (defonce app-state (atom initial-app-state))
 
 (defn state []
