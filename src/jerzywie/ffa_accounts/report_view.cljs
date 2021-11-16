@@ -42,14 +42,14 @@
     [:div
      [:h5 "Summary"]
      [:div.row.mb-3
+      ^{:key 999}[:div.col (str "Number of donors: " (count filtered-txns))]
       (map (fn [{:keys [name amount]} id]
              (when (> amount 0)
                ^{:key id}
                [:div.col
                 (str (name caption-map) ": " (util/tonumber amount "£"))]))
            summ-donations
-           (range))
-      ]
+           (range))]
 
      [:h5 "Detail"]
      [:table.table.table-striped
