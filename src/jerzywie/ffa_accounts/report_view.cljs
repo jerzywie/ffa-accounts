@@ -206,16 +206,36 @@
         [:td.text-end (-> months-txns (r-util/add-up :out) (util/tonumber))]
         [:td ""]]]]]))
 
-(defn weekly-analysis [donations expenditure analysis-date num-weeks]
+(defn weekly-analysis [donations income expenditure analysis-date num-weeks]
   (let [weekly-in (r-util/weekly-regular-donations donations analysis-date num-weeks)
-        plot-data (r-util/weekly-regular-donations->array weekly-in)]
-    (-> weekly-in
-        pprint
-        with-out-str)
-    [chart-view/draw-chart "AreaChart"
-     :weekly-analysis
-     plot-data
-     {:title "weekly"}]
+        weekly-1-offs (r-util/weekly-one-offs income analysis-date num-weeks)
+        weekly-out (r-util/weekly-expenditure expenditure analysis-date num-weeks)
+        plot-data (r-util/weekly-in-and-out->array weekly-in
+                                                   weekly-1-offs
+                                                   weekly-out)]
+    [:div
+     [:div.d-none
+      [:div
+       (-> weekly-in
+           pprint
+           with-out-str)]
+      [:hr]
+      [:div
+       (-> weekly-1-offs
+           pprint
+           with-out-str)]
+      [:hr]
+      [:div
+       (-> weekly-out
+           pprint
+           with-out-str)]]
+     [chart-view/draw-chart "AreaChart"
+      :weekly-analysis
+      plot-data
+      {:title (str "Weekly analysis - last " num-weeks " weeks")
+       :height 400
+       :colors ["green" "blue" "black" "red"]
+       :legend {:position "bottom"}}]]
     ))
 
 (defn report [data analysis-date-or-nil]
@@ -269,6 +289,6 @@
          [:h4.mt-4 "Donor report"]
          [report-donors]
 
-         [:h4.mt-4 "Weekly donation analysis"]
-         [weekly-analysis allocd-txns expend analysis-date 12]
+         [:h4.mt-4 "Weekly donation and expenditure analysis"]
+         [weekly-analysis allocd-txns income expend analysis-date 12]
          ]]])))

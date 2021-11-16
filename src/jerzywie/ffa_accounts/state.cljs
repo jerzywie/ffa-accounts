@@ -58,35 +58,54 @@
         [:div (with-out-str (pprint (assoc
                                      (dissoc state :data :processed-txns :allocd-txns :exp)
                                      :data-state  (if (:data state) "Data exists." "No data."))))]
-        [:h6.mt-3 "Processed-txns ('type' and 'desc' omitted)"]
-        [:table.table.table-sm.table-striped
-         [:thead
-          [:tr
-           [:th {:scope "col"} "date"]
-           [:th.text-right {:scope "col"} "in"]
-           [:th {:scope "col"} "name"]
-           [:th {:scope "col"} "group"]
-           [:th {:scope "col"} "account-name"]
-           [:th {:scope "col"} "period"]
-           [:th {:scope "col"} "freq"]
-           [:th {:scope "col"} "new?"]
-           [:th {:scope "col"} "current?"]
-           [:th {:scope "col"} "seqno"]]]
-         (into [:tbody]
-               (for [{:keys [date in name group account-name period freq new current seqno]}
-                     (:processed-txns state)]
-                 [:tr.tiny-words
-                  [:td (str date)]
-                  [:td.text-right in]
-                  [:td name]
-                  [:td group]
-                  [:td account-name]
-                  [:td period]
-                  [:td freq]
-                  [:td (when new "new!")]
-                  [:td (when current "current")]
-                  [:td seqno]]))]
-        [:h6.mt3 ":allocd-txns"]
-        [:div (with-out-str (pprint (:allocd-txns state)))]
-        [:h6.mt3 ":exp"]
-        [:div (with-out-str (pprint (:exp state)))]]])))
+        [:div
+         [:h6.mt-3 "Expenditure"]
+         [:table.table.table-sm.table-striped
+          [:thead
+           [:tr
+            [:th {:scope "col"} "date"]
+            [:th.text-right {:scope "col"} "out"]
+            [:th {:scope "col"} "type"]
+            [:th {:scope "col"} "desc"]
+            [:th {:scope "col"} "seqno"]]]
+          (into [:tbody]
+                (for [{:keys [date out type desc seqno]}
+                      (:exp state)]
+                  [:tr.tiny-words
+                   [:td (str date)]
+                   [:td.text-right out]
+                   [:td type]
+                   [:td desc]
+                   [:td seqno]]))]]
+        [:div
+         [:h6.mt-3 "Processed-txns ('type' and 'desc' omitted)"]
+         [:table.table.table-sm.table-striped
+          [:thead
+           [:tr
+            [:th {:scope "col"} "date"]
+            [:th.text-right {:scope "col"} "in"]
+            [:th {:scope "col"} "name"]
+            [:th {:scope "col"} "group"]
+            [:th {:scope "col"} "account-name"]
+            [:th {:scope "col"} "period"]
+            [:th {:scope "col"} "freq"]
+            [:th {:scope "col"} "new?"]
+            [:th {:scope "col"} "current?"]
+            [:th {:scope "col"} "seqno"]]]
+          (into [:tbody]
+                (for [{:keys [date in name group account-name period freq new current seqno]}
+                      (:processed-txns state)]
+                  [:tr.tiny-words
+                   [:td (str date)]
+                   [:td.text-right in]
+                   [:td name]
+                   [:td group]
+                   [:td account-name]
+                   [:td period]
+                   [:td freq]
+                   [:td (when new "new!")]
+                   [:td (when current "current")]
+                   [:td seqno]]))]]
+        ;[:h6.mt3 ":allocd-txns"]
+        ;[:div (with-out-str (pprint (:allocd-txns state)))]
+        ]])))

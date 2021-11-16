@@ -73,11 +73,21 @@
 (defn days-between [d1 d2]
   (.until d1 d2 (.. jt/ChronoUnit -DAYS)))
 
-(defn within-last-month-of [reference-date test-date]
-  (let [prev-month (.minusMonths reference-date 1)
-        is-before? (.isBefore test-date prev-month)
-        is-after? (.isAfter test-date reference-date)]
+(defn is-within-dates? [first-date second-date test-date]
+  (let [is-before? (.isBefore test-date first-date)
+        is-after? (.isAfter test-date second-date)]
     (not (or is-before? is-after?))))
+
+(defmulti within-last-period-of
+  (fn [period reference-date test-date] (:period period)))
+
+(defmethod within-last-period-of :month [_ reference-date test-date]
+  (let [prev-month (.minusMonths reference-date 1)]
+    (is-within-dates? prev-month reference-date test-date)))
+
+(defmethod within-last-period-of :week [_ reference-date test-date]
+  (let [prev-week (-> reference-date (.minusWeeks 1) (.plusDays 1))]
+    (is-within-dates? prev-week reference-date test-date)))
 
 (defn last-date-in-month [date]
   (-> date (.plusMonths 1) (.withDayOfMonth 1) (.minusDays 1)))

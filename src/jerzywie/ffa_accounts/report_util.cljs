@@ -44,13 +44,7 @@
                             (group-by :period)
                             (map (fn [[k v]] {:name k
                                              :amount (add-up v :in)})))]
-    summ-donations
-;    (conj summ-donations
-;          {:name :weekly-grand-total
-;           :amount (calc-grand-total summ-donations :weekly)}
-;          {:name :monthly-grand-total
-;    :amount (calc-grand-total summ-donations :monthly)})
-))
+    summ-donations))
 
 (defn get-summary-expenditure-totals
   "Return a list of maps, one for each different category."
@@ -135,10 +129,62 @@
                  (dec count)
                  (conj result this-week)))))))
 
-(defn weekly-regular-donations->array [weekly-donations-map-list]
-  (->> weekly-donations-map-list
-       (sort-by :date)
-       (map (fn [{:keys [date aggregate]}]
-              [(util/date->dd-MMM-yyyy date) aggregate]))
-       (#(conj % ["Week (Friday)" "Aggregate donations"]))
-       (into [])))
+(defn weekly-one-offs [income last-week-date num-weeks]
+  (let [next-or-same-friday (util/get-next-day last-week-date util/js-friday)]
+    (loop [week next-or-same-friday
+           count num-weeks
+           result []]
+      (if (= count 0)
+        result
+        (let [filter-fn (fn [m] (and (util/within-last-period-of
+                                     {:period :week}
+                                     week
+                                     (:date m))
+                                    (not= (:freq m) :regular)))
+              one-offs-this-week (filter filter-fn income)
+              tot-1-offs (add-up one-offs-this-week :in)]
+          (recur (.minusWeeks week 1)
+                 (dec count)
+                 (conj result {:one-offs tot-1-offs :date week})))))))
+
+(defn weekly-expenditure [expend last-week-date num-weeks]
+  (let [next-or-same-friday (util/get-next-day last-week-date util/js-friday)]
+    (loop [week next-or-same-friday
+           count num-weeks
+           result []]
+      (if (= count 0)
+        result
+        (let [filter-fn (fn [m] (util/within-last-period-of
+                                 {:period :week}
+                                 week
+                                 (:date m)))
+              expend-this-week (filter filter-fn expend)
+              totals-expend (add-up expend-this-week :out)]
+          (recur (.minusWeeks week 1)
+                 (dec count)
+                 (conj result {:expend totals-expend :date week})))))))
+
+(defn safe-merge [m1 m2 m3]
+  (let [date1 (:date m1)
+        date2 (:date m2)
+        date3 (:date m3)]
+    (if (= date1 date2 date3)
+      (merge m1 m2 m3)
+      (throw (js/Error. "Incompatible dates in merge!")))))
+
+(defn weekly-in-and-out->array [dated-donations-map-list
+                                dated-one-offs-map-list
+                                dated-expend-map-list]
+  (let [merged-lists (map safe-merge
+                          dated-donations-map-list
+                          dated-one-offs-map-list
+                          dated-expend-map-list)]
+    (->> merged-lists
+         (sort-by :date)
+         (map (fn [{:keys [date aggregate one-offs expend]}]
+                [(util/date->dd-MMM-yyyy date)
+                 aggregate
+                 one-offs
+                 (+ aggregate one-offs) (* -1 expend)]))
+         (#(conj % ["Week (Friday)" "Aggregate regular donations" "One-offs" "Total income" "Expenditure"]))
+         (into []))))

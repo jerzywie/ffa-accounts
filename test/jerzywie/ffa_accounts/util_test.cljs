@@ -17,16 +17,25 @@
     #{"Z & Y" "A"}        "A & Z & Y"
     ))
 
-(deftest within-last-month-of-tests
-  (are [reference-date test-date result] (= (sut/within-last-month-of
-                                             (sut/md reference-date)
-                                             (sut/md test-date))
-                                            result)
-    [2021 9 27] [2021 9 27] true
-    [2021 9 27] [2021 9 28] false
-    [2021 9 27] [2021 8 27] true
-    [2021 9 27] [2021 8 26] false
-    [2021 9 27] [2021 9 20] true))
+(deftest within-last-period-of-tests
+  (are [reference-date test-date period result] (= (sut/within-last-period-of
+                                                    {:period period}
+                                                    (sut/md reference-date)
+                                                    (sut/md test-date))
+                                                   result)
+    [2021 9 27] [2021 9 27] :month true
+    [2021 9 27] [2021 9 28] :month false
+    [2021 9 27] [2021 8 27] :month true
+    [2021 9 27] [2021 8 26] :month false
+    [2021 9 27] [2021 9 20] :month true
+    [2021 9 27] [2021 9 27] :week true
+    [2021 9 27] [2021 9 28] :week false
+    [2021 9 27] [2021 9 21] :week true
+    [2021 9 27] [2021 9 20] :week false
+    [2021 9 27] [2021 9 19] :week false
+    [2021 9  4] [2021 8 29] :week true
+    [2021 9  4] [2021 8 28] :week false
+    [2021 9  4] [2021 8 27] :week false))
 
 (deftest last-date-in-month-tests
   (are [date result] (= (sut/last-date-in-month (sut/md date)) (sut/md result))
