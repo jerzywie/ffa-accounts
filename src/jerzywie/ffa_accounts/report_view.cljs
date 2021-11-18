@@ -233,7 +233,7 @@
       :weekly-analysis
       plot-data
       {:title (str "Weekly analysis - last " num-weeks " weeks")
-       :height 400
+       :height 600
        :colors ["green" "blue" "black" "red"]
        :legend {:position "bottom"}}]]
     ))
