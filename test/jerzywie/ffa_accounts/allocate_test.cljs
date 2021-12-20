@@ -87,3 +87,64 @@
       (is (= (-> cache vals second :names count) 1))
       (is (nil? (-> cache vals second :group)))
       (is (= cache cache2)))))
+
+(deftest process-expenditure-tests
+  (let [coalesce-result       "ABC-generic"
+        in-set                "ABC-first"
+        also-in-set           "ABC-second"
+        coalesce-set          #{in-set also-in-set}
+        not-in-set            "nonesuch"
+        coalesce-other-result "XYZ-result"
+        in-other-set          "XYZ-name1"
+        also-in-other-set     "XYZ-name2"
+        coalesce-other-set    #{in-other-set also-in-other-set}
+        not-in-other-set      "XYZ-not"
+        coalesce-map          {coalesce-result coalesce-set
+                               coalesce-other-result coalesce-other-set}
+        so                    "Standing order"
+        payment               "Payment"
+        pt                    (str payment " to")
+        txn-list              (list {:desc not-in-set        :seqno 1 :out 10 :type so}
+                                    {:desc in-set            :seqno 2 :out 20 :type pt}
+                                    {:desc also-in-set       :seqno 3 :out 30 :type pt}
+                                    {:desc not-in-other-set  :seqno 4 :out 40 :type pt}
+                                    {:desc "not-payment-1"   :seqno 5 :in 100 :type "_"}
+                                    {:desc in-other-set      :seqno 6 :out 50 :type so}
+                                    {:desc also-in-other-set :seqno 7 :out 60 :type pt}
+                                    {:desc "not payment-2"   :seqno 8 :in 100 :type "_"})]
+    (testing "coalesce-one-payee"
+      (is (= coalesce-result
+             (sut/coalesce-one-payee in-set coalesce-set coalesce-result)))
+
+      (is (= coalesce-other-result
+             (sut/coalesce-one-payee in-other-set coalesce-other-set coalesce-other-result)))
+
+      (is (nil? (sut/coalesce-one-payee not-in-set coalesce-set coalesce-result)))
+
+      (is (nil? (sut/coalesce-one-payee
+                 not-in-other-set
+                 coalesce-other-set
+                 coalesce-other-result))))
+
+    (testing "coalesce-payees"
+      (is (= {:desc not-in-set :seqno 999}
+             (sut/coalesce-payees coalesce-map {:desc not-in-set :seqno 999})))
+
+      (is (= {:desc coalesce-result :seqno 999}
+             (sut/coalesce-payees coalesce-map {:desc in-set :seqno 999}))))
+
+    (let [exp-list (->> txn-list
+                        (sut/process-expenditure coalesce-map)
+                        (sort-by :seqno))]
+
+      (testing "prettify-payment type"
+        (is (= so      (:type (first exp-list))))
+        (is (= payment (:type (second exp-list)))))
+
+      (testing "process-expenditure"
+        (is (= 6                     (count exp-list)))
+        (is (= 7                     (-> exp-list last :seqno)))
+        (is (= not-in-set            (-> exp-list first :desc)))
+        (is (= coalesce-result       (-> exp-list second :desc)))
+        (is (= coalesce-other-result (-> exp-list (nth 4) :desc)))
+        (is (= coalesce-other-result (-> exp-list (nth 5) :desc)))))))

@@ -44,7 +44,7 @@
                                  alloc/process-income))
     (state/add-exp! (->> data
                          :txns
-                         alloc/process-expenditure))
+                         (alloc/process-expenditure alloc/expend-map)))
     (state/set-chart-data-changed!)
     (recur)))
 

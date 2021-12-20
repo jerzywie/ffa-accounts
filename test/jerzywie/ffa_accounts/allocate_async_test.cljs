@@ -41,13 +41,14 @@
                (done))))))
 
 (deftest process-expenditure-tests
-  (let [_ (test-util/request-input-element-value "inp")]
+  (let [_ (test-util/request-input-element-value "inp")
+        expend-map {"Ovoid Company" #{"SPHEROID COMPANY"}}]
     (async done
            (go
-             (let [exp-tx (-> (<! test-util/file-reads)
-                              csv/transform-raw-data
-                              :txns
-                              sut/process-expenditure)]
+             (let [exp-tx (->> (<! test-util/file-reads)
+                               csv/transform-raw-data
+                               :txns
+                               (sut/process-expenditure expend-map))]
                ;(prn "exp " exp-tx)
                (is (= 1 1) "Dummy test")
                (done))))))

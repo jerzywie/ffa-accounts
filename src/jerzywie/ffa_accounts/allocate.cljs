@@ -3,6 +3,11 @@
             [jerzywie.ffa-accounts.util :as util]
             [clojure.string :as s]))
 
+(def expend-map {"Gloucester Rd Fruiterers"
+                 #{"GLOUCESTER ROAD FR" "FAHID REHMAN"}
+                 "Good Egg Company"
+                 #{"THE GOOD EGG COMPA" "GOOD EGG COMPANY"}})
+
 (def empty-name {:names #{} :group nil :filterby nil})
 
 (def bank-credit "Bank credit")
@@ -70,7 +75,19 @@
   (let [pretty-type (s/replace type " to" "")]
     (assoc txn :type pretty-type)))
 
-(defn process-expenditure [transactions]
+(defn coalesce-one-payee [payee match-set replacement]
+  (when (some match-set (list payee)) replacement))
+
+(defn coalesce-payees [coalesce-map {:keys [desc] :as txn}]
+  (let [replacement (->> (map (fn [m-s rep] (coalesce-one-payee desc m-s rep))
+                              (vals coalesce-map)
+                              (keys coalesce-map))
+                         (filter identity)
+                         first)]
+    (if replacement (assoc txn :desc replacement) txn)))
+
+(defn process-expenditure [coalesce-map transactions]
   (->> transactions
        (filter #(nil? (:in %)))
-       (map prettify-payment-type)))
+       (map prettify-payment-type)
+       (map (partial coalesce-payees coalesce-map))))
