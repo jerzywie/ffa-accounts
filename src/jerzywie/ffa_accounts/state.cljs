@@ -57,7 +57,8 @@
         [:h5 "debug app state"]
         [:div (with-out-str (pprint (assoc
                                      (dissoc state :data :processed-txns :allocd-txns :exp)
-                                     :data-state  (if (:data state) "Data exists." "No data."))))]
+                                     :data-state  (if (:data state) "Data exists." "No data.")
+                                     :accinfo (-> state :data :accinfo))))]
         [:div
          [:h6.mt-3 "Expenditure"]
          [:table.table.table-sm.table-striped

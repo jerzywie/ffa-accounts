@@ -19,22 +19,35 @@
                   :none "Grand total one-offs"
                   :one-off "Grand total one-offs"})
 
-(defn account-summary [accinfo income expend date-first-txn date-last-txn]
-  [:div
-   [:div.row
-    (map (fn [[k v] id] ^{:key id}
-           [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
-         accinfo
-         (range))]
-   [:div.row
-    [:div.col-md-4]
-    [:div.col-md-4 (str "First transaction: " (util/date->dd-MMM-yyyy date-first-txn))]
-    [:div.col-md-4 (str "Last transaction: " (util/date->dd-MMM-yyyy date-last-txn))]]
-   [:div.row
-    [:div.col-md-4]
-    [:div.col-md-4 (str "Income: " (util/tonumber (r-util/add-up income :in) "£"))]
-    [:div.col-md-4 (str "Expenditure: " (util/tonumber (r-util/add-up expend :out) "£"))]]
-])
+(defn account-summary [accinfo income expend date-first-txn date-last-txn balance]
+  (let [all-income (r-util/add-up income :in)
+        all-expend (r-util/add-up expend :out)
+        calc-balance (- all-income all-expend)
+        bal-as-str (util/tonumber balance "£")
+        calc-bal-as-str (util/tonumber calc-balance "£")
+        bals-match? (= bal-as-str calc-bal-as-str)]
+    [:div
+     [:div.row
+      (map (fn [[k v] id] ^{:key id}
+             [:div.col-md-4 (str (capitalize (name k)) ": " (util/tonumber v "£"))])
+           accinfo
+           (range))
+      [:div.col-md-4 (str "First transaction: " (util/date->dd-MMM-yyyy date-first-txn))]
+      [:div.col-md-4 (str "Last transaction: " (util/date->dd-MMM-yyyy date-last-txn))]]
+     [:div.row
+      [:div.col-md-4]
+      [:div.col-md-4 (str "Income: " (util/tonumber all-income "£"))]
+      [:div.col-md-4 (str "Expenditure: " (util/tonumber all-expend "£"))]]
+     [:div.row
+      [:div.col-md-4]
+      [:div.col-md-4 (str "Account Balance (last txn): " bal-as-str)]
+      [:div.col-md-4
+       {:class (if bals-match? "text-success" "text-danger")}
+       (str
+        "Income-Expenditure: "
+        calc-bal-as-str
+        (if-not bals-match? " [Does not match!]" ""))]]
+     ]))
 
 (defn report-donations [income filter-fn sort-by-key]
   (let [filtered-txns (sort-by sort-by-key (filter filter-fn income))
@@ -244,6 +257,7 @@
           expend (:exp (state/state))
           date-first-txn (-> data :txns first :date)
           date-last-txn (-> data :txns last :date)
+          balance (-> data :txns last :bal)
           analysis-date (or analysis-date-or-nil date-last-txn)
           income (anal/analyse-donations analysis-date allocd-txns)]
       (state/add-processed-transactions! income)
@@ -253,7 +267,7 @@
        [:div.row
         [:div.col
          [:h4.mt-4 "Account summary"]
-         [account-summary (:accinfo data) income expend date-first-txn date-last-txn]
+         [account-summary (:accinfo data) income expend date-first-txn date-last-txn balance]
 
          [:h4.mt-4 "Monthly summary"]
          [monthly-txn-summary-view income expend date-first-txn date-last-txn]

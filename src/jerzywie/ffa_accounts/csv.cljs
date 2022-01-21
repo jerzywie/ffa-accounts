@@ -48,7 +48,7 @@
    :seqno seqno})
 
 (defn transform-raw-data [raw-data]
-  (let [acc-info (process-header-lines (take 3 raw-data))
+  (let [acc-info (process-header-lines (take 1 raw-data))
         transactions (drop 4 raw-data)
         txn-headers (keywordise-transaction-headers (first transactions))
         txn-map (map #(zipmap txn-headers %) (rest transactions))]

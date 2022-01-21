@@ -6,7 +6,7 @@
 
 (def expected-keys '(:accinfo :txns))
 (def expected-txns-count 58)
-(def expected-header-keys-count 3)
+(def expected-header-keys-count 1)
 
 (deftest file-tests-async
   (let [_ (test-util/request-input-element-value "inp")]
