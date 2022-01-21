@@ -22,6 +22,7 @@
     [2021 10  6] [2021 10 18] {:period :fortnightly :freq :regular}
     [2021 10  6] [2021 10 22] {:period :fortnightly :freq :regular}
     [2021  7 22] [2021  8 23] {:period :monthly     :freq :regular}
+    [2021 12 01] [2022  1  4] {:period :monthly     :freq :regular}
     [2021  8  3] [2021  8  8] {:period :none        :freq :irregular}
     [2021  8  3] [2021  8 12] {:period :none        :freq :irregular}))
 

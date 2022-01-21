@@ -12,8 +12,8 @@
     (cond
       (between? days 6 8)            {:period :weekly        :freq :regular}
       (between? days 12 16)          {:period :fortnightly   :freq :regular}
-      (between? days 28 32)          {:period :monthly       :freq :regular}
-     :else                          {:period :none          :freq :irregular})))
+      (between? days 26 34)          {:period :monthly       :freq :regular}
+      :else                          {:period :none          :freq :irregular})))
 
 (defn interval-analysis
   "Reduce-fn for analyse-time-intervals."
