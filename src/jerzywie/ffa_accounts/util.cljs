@@ -27,6 +27,12 @@
     (apply str (take (dec (count s)) s))
     s))
 
+(defn convert-txn-date-string-caf
+  "Process a date string in the format dd/mm/yyyy"
+  [dstr]
+  (let [[dd MM yyyy] (s/split dstr #"/")]
+    (parse-iso-date-string (g/format "%s-%02i-%s" yyyy MM dd))))
+
 (defn convert-txn-date-string
   "Process a date string in the format dd MMM yyyy."
   [dstr]

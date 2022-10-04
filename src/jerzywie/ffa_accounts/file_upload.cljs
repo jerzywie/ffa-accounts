@@ -1,5 +1,5 @@
 (ns jerzywie.ffa-accounts.file-upload
-  (:require [jerzywie.ffa-accounts.csv :as mycsv] 
+  (:require [jerzywie.ffa-accounts.csv-signature :as csvsig]
             [jerzywie.ffa-accounts.allocate :as alloc]
             [jerzywie.ffa-accounts.state :as state]
             [cljs.core.async :as async :refer [put! chan <!]]
@@ -19,7 +19,7 @@
             .-result
             csv/parse
             js->clj
-            mycsv/transform-raw-data)))
+            csvsig/transform-raw-data)))
 
 (def upload-reqs (chan 1 first-file))
 (def file-reads (chan 1 extract-result))

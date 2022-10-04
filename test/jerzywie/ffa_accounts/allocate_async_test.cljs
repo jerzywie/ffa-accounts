@@ -1,7 +1,7 @@
 (ns jerzywie.ffa-accounts.allocate-async-test
   (:require [jerzywie.ffa-accounts.allocate :as sut]
             [jerzywie.ffa-accounts.test-util :as test-util]
-            [jerzywie.ffa-accounts.csv :as csv]
+            [jerzywie.ffa-accounts.csv-signature :as csvsig]
             [jerzywie.ffa-accounts.util :as util]
             [cljs.test :refer [deftest is use-fixtures async]]
             [cljs.core.async :as async :refer [go <!]]))
@@ -21,7 +21,7 @@
     (async done
            (go
              (let [income-tx (-> (<! test-util/file-reads)
-                                 csv/transform-raw-data
+                                 csvsig/transform-raw-data
                                  :txns
                                  sut/process-income
                                  vals)
@@ -46,7 +46,7 @@
     (async done
            (go
              (let [exp-tx (->> (<! test-util/file-reads)
-                               csv/transform-raw-data
+                               csvsig/transform-raw-data
                                :txns
                                (sut/process-expenditure expend-map))]
                ;(prn "exp " exp-tx)

@@ -1,6 +1,7 @@
 (ns jerzywie.ffa-accounts.csv-test
-  (:require [jerzywie.ffa-accounts.csv :as sut]
+  (:require [jerzywie.ffa-accounts.csv-nationwide :as sut]
             [jerzywie.ffa-accounts.util :as util]
+            [jerzywie.ffa-accounts.parse-util :as pu]
             [cljs.test :refer-macros [deftest is testing]]))
 
 (def expected-accname "accname")
@@ -10,14 +11,25 @@
 (deftest keywordise-headers-converts-to-correct-headers
   (testing "keywordise-headers converts to correct headers."
     (is (= '(:date :type :desc :out :in :bal)
-           (sut/keywordise-transaction-headers ["Date" "Transaction type" "Description" "Paid out" "Paid in" "Balance"])))))
+           (pu/keywordise-transaction-headers
+            {:date :date
+             :transactiontype :type
+             :description :desc
+             :paidout :out
+             :paidin :in
+             :balance :bal
+             :accountname :account-name
+             :accountbalance :account-balance
+             :availablebalance :avail-balance}
+            ["Date" "Transaction type" "Description" "Paid out" "Paid in" "Balance"])))))
 
-(deftest format-amount-tests
-  (testing "format-amount handles conversion correctly."
-    (is (= 610.89 (sut/format-amount "610.89")))
-    (is (= 610.89 (sut/format-amount "�610.89")))
-    (is (= 15.00 (sut/format-amount "£15.00")))
-    (is (nil? (sut/format-amount "")))))
+(deftest parse-amount-tests
+  (testing "parse-amount handles conversion correctly."
+    (is (= 610.89 (pu/parse-amount "610.89")))
+    (is (= 610.89 (pu/parse-amount "�610.89")))
+    (is (= 15.00 (pu/parse-amount "£15.00")))
+    (is (= 170.00 (pu/parse-amount "170")))
+    (is (nil? (pu/parse-amount "")))))
 
 (def header-lines (list ["Account Name:" (:s expected-accname)]
                         ["Account Balance:" (:s expected-balance)]

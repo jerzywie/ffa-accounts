@@ -86,3 +86,11 @@
     [2021 10 23] "Oct-2021" "23-Oct-2021"
     [2021 11 30] "Nov-2021" "30-Nov-2021"
     [2021 12 25] "Dec-2021" "25-Dec-2021"))
+
+(deftest convert-txn-date-string-tests
+  (are [datestring conv-fn dd-MMM-yyyy-result]
+      (let [local-date (conv-fn datestring)]
+        (= (sut/date->dd-MMM-yyyy local-date) dd-MMM-yyyy-result))
+
+    "15/06/2022"   sut/convert-txn-date-string-caf  "15-Jun-2022"
+    "06 Jun 2022"  sut/convert-txn-date-string      "06-Jun-2022"))

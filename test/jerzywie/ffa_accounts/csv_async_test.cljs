@@ -1,10 +1,10 @@
 (ns jerzywie.ffa-accounts.csv-async-test
-  (:require [jerzywie.ffa-accounts.csv :as sut]
+  (:require [jerzywie.ffa-accounts.csv-signature :as sut]
             [jerzywie.ffa-accounts.test-util :as test-util]
             [cljs.test :refer-macros [deftest async is]]
             [cljs.core.async :as async :refer [go <!]]))
 
-(def expected-keys '(:accinfo :txns))
+(def expected-keys '(:accinfo :bank :txns))
 (def expected-txns-count 58)
 (def expected-header-keys-count 1)
 
