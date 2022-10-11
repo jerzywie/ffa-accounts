@@ -8,29 +8,6 @@
 (def expected-balance {:s "�123.45" :v 123.45})
 (def expected-avail-balance {:s "�98.76" :v 98.76})
 
-(deftest keywordise-headers-converts-to-correct-headers
-  (testing "keywordise-headers converts to correct headers."
-    (is (= '(:date :type :desc :out :in :bal)
-           (pu/keywordise-transaction-headers
-            {:date :date
-             :transactiontype :type
-             :description :desc
-             :paidout :out
-             :paidin :in
-             :balance :bal
-             :accountname :account-name
-             :accountbalance :account-balance
-             :availablebalance :avail-balance}
-            ["Date" "Transaction type" "Description" "Paid out" "Paid in" "Balance"])))))
-
-(deftest parse-amount-tests
-  (testing "parse-amount handles conversion correctly."
-    (is (= 610.89 (pu/parse-amount "610.89")))
-    (is (= 610.89 (pu/parse-amount "�610.89")))
-    (is (= 15.00 (pu/parse-amount "£15.00")))
-    (is (= 170.00 (pu/parse-amount "170")))
-    (is (nil? (pu/parse-amount "")))))
-
 (def header-lines (list ["Account Name:" (:s expected-accname)]
                         ["Account Balance:" (:s expected-balance)]
                         ["Available Balance: " (:s expected-avail-balance)]))
